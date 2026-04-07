@@ -1,115 +1,124 @@
 const CLIENT_ID = 'm3l01pm0lc1hyw65z60xb0dmr5kq6w';
-const REDIRECT_URI = 'https://radiumpubg-hue.github.io/twitch-ua/';
+// ВАЖЛИВО: Перевір, щоб це посилання БУКВА В БУКВУ збігалося з тим, що ти ввів у Twitch Developer Console
+const REDIRECT_URI = 'https://radiumpubg-hue.github.io/twitch-ua/'; 
+
 let accessToken = localStorage.getItem('twitch_access_token');
 
-function setStatus(text) {
-    const el = document.getElementById('status');
-    if (el) el.innerHTML = text;
-}
-
 window.onload = function() {
-    // Авторизація
-    const params = new URLSearchParams(window.location.hash.substring(1));
-    const token = params.get('access_token');
-    if (token) {
-        accessToken = token;
-        localStorage.setItem('twitch_access_token', token);
+    // 1. ПЕРЕВІРКА ТОКЕНА ПІСЛЯ ВХОДУ
+    const hash = window.location.hash.substring(1);
+    const params = new URLSearchParams(hash);
+    const tokenFromUrl = params.get('access_token');
+
+    if (tokenFromUrl) {
+        accessToken = tokenFromUrl;
+        localStorage.setItem('twitch_access_token', tokenFromUrl);
+        // Очищуємо URL від токена для краси
         window.history.replaceState({}, document.title, window.location.pathname);
     }
 
-    document.getElementById('login-btn').onclick = () => {
-        window.location.href = `https://id.twitch.tv/oauth2/authorize?client_id=${CLIENT_ID}&redirect_uri=${encodeURIComponent(REDIRECT_URI)}&response_type=token&scope=user:read:email`;
-    };
-
-    // Перемикання сторінок
+    // 2. ЛОГІКА КНОПОК МЕНЮ
     document.getElementById('btn-home').onclick = () => {
         document.getElementById('main-section').style.display = 'block';
         document.getElementById('hall-section').style.display = 'none';
+        if (accessToken) loadStreams();
     };
+
     document.getElementById('btn-hall').onclick = () => {
         document.getElementById('main-section').style.display = 'none';
         document.getElementById('hall-section').style.display = 'block';
         renderHall();
     };
 
-    if (!accessToken) {
-        setStatus("Натисніть кнопку 'Увійти' для старту.");
-        return;
-    }
-
-    loadStreams(); // Завантажити онлайн стріми за замовчуванням
-
-    // --- ПОШУК (ОНЛАЙН + ОФЛАЙН) ---
-    let timer;
-    document.getElementById('search-input').oninput = (e) => {
-        clearTimeout(timer);
-        const query = e.target.value.trim();
-        if (query.length < 2) return;
-        
-        timer = setTimeout(async () => {
-            setStatus("Шукаємо всюди...");
-            try {
-                const res = await fetch(`https://api.twitch.tv/helix/search/channels?query=${encodeURIComponent(query)}&first=50`, {
-                    headers: { 'Client-ID': CLIENT_ID, 'Authorization': `Bearer ${accessToken}` }
-                });
-                const data = await res.json();
-                renderGrid(data.data, false); // false = показувати і офлайн
-            } catch (err) { setStatus("Помилка пошуку."); }
-        }, 600);
+    // 3. КНОПКА ВХОДУ
+    const loginBtn = document.getElementById('login-btn');
+    loginBtn.onclick = () => {
+        const authUrl = `https://id.twitch.tv/oauth2/authorize?client_id=${CLIENT_ID}&redirect_uri=${encodeURIComponent(REDIRECT_URI)}&response_type=token&scope=user:read:email`;
+        window.location.href = authUrl;
     };
+
+    // ПЕРЕВІРКА СТАНУ
+    if (!accessToken) {
+        document.getElementById('status').innerHTML = "Будь ласка, натисніть <b>'Увійти через Twitch'</b>";
+    } else {
+        loginBtn.innerText = "Авторизовано ✅";
+        loadStreams();
+    }
 };
 
+// ЗАВАНТАЖЕННЯ СТРІМІВ
 async function loadStreams() {
+    const statusEl = document.getElementById('status');
+    statusEl.innerText = "Шукаємо українських стрімерів...";
+    
     try {
-        const res = await fetch('https://api.twitch.tv/helix/streams?language=uk&first=100', {
-            headers: { 'Client-ID': CLIENT_ID, 'Authorization': `Bearer ${accessToken}` }
+        const res = await fetch('https://api.twitch.tv/helix/streams?language=uk&first=40', {
+            headers: {
+                'Client-ID': CLIENT_ID,
+                'Authorization': `Bearer ${accessToken}`
+            }
         });
-        if (res.status === 401) { setStatus("Треба перелогінитись."); return; }
+
+        if (res.status === 401) {
+            statusEl.innerText = "Помилка авторизації. Спробуйте увійти знову.";
+            localStorage.removeItem('twitch_access_token');
+            return;
+        }
+
         const data = await res.json();
-        renderGrid(data.data, true);
-    } catch (e) { setStatus("Помилка з'єднання."); }
+        renderGrid(data.data);
+    } catch (err) {
+        statusEl.innerText = "Помилка зв'язку з Twitch.";
+    }
 }
 
-function renderGrid(data, onlyOnline) {
+function renderGrid(streams) {
     const grid = document.getElementById('streamers-grid');
     grid.innerHTML = '';
     
-    if (!data || data.length === 0) {
-        setStatus("Нікого не знайдено.");
+    if (!streams || streams.length === 0) {
+        document.getElementById('status').innerText = "Зараз ніхто не стрімить мовою UA.";
         return;
     }
 
-    setStatus(onlyOnline ? `Зараз в ефірі (UA): ${data.length}` : "Знайдені канали (UA):");
+    document.getElementById('status').innerText = `Зараз в ефірі: ${streams.length}`;
 
-    data.forEach(s => {
-        // У пошуку і в списку стрімів різні назви полів, робимо універсально:
-        const login = s.user_login || s.broadcaster_login;
-        const name = s.user_name || s.display_name;
-        const isLive = onlyOnline ? true : s.is_live;
-        const viewers = s.viewer_count ? `👥 ${s.viewer_count}` : 'Офлайн';
-        let thumb = s.thumbnail_url.replace('{width}', '400').replace('{height}', '225');
-        
-        // Якщо це пошук, Twitch дає статичну картинку профілю замість стріму
-        if (!onlyOnline && !isLive) thumb = s.thumbnail_url; 
-
+    streams.forEach(s => {
+        const thumb = s.thumbnail_url.replace('{width}', '400').replace('{height}', '225');
         grid.innerHTML += `
-            <div class="card ${!isLive ? 'offline' : ''}">
-                <a href="https://twitch.tv/${login}" target="_blank" style="text-decoration:none; color:inherit;">
-                    <div class="img-container">
-                        <img src="${thumb}" onerror="this.src='https://via.placeholder.com/400x225?text=No+Image'">
-                        ${isLive ? '<span class="live-tag">LIVE</span>' : ''}
-                    </div>
+            <div class="card">
+                <a href="https://twitch.tv/${s.user_login}" target="_blank" style="text-decoration:none; color:inherit;">
+                    <img src="${thumb}" alt="${s.user_name}">
                     <div class="info">
-                        <b>${name}</b><br>
-                        <small>${s.game_name || 'Без категорії'}</small><br>
-                        <small class="viewers-count">${viewers}</small>
+                        <b>${s.user_name}</b><br>
+                        <small>${s.game_name}</small><br>
+                        <small>👥 ${s.viewer_count}</small>
                     </div>
                 </a>
             </div>`;
     });
 }
 
+// ЗАЛ СЛАВИ (ТВОЇ КАРТИНКИ)
 function renderHall() {
-    // Тут твій код Залу Слави (Award Data), він не мінявся
-    document.getElementById('hall-content').innerHTML = "<p>Завантаження легенд...</p>";
+    const hallGrid = document.getElementById('hall-content');
+    
+    // Список твоїх переможців (перевір назви файлів!)
+    const legends = [
+        { name: "Лебіга", nomination: "Подія року", img: "leb1ga_tour.png" },
+        { name: "Мафія", nomination: "Колаборація року", img: "mafiia-zi-strimerami-leb1ga.webp" },
+        { name: "Стрімер 3", nomination: "Відкриття року", img: "logo.png" }
+    ];
+
+    hallGrid.innerHTML = '';
+    legends.forEach(l => {
+        hallGrid.innerHTML += `
+            <div class="card" style="border: 1px solid #FFE600;">
+                <img src="${l.img}" onerror="this.src='https://via.placeholder.com/400x225?text=No+Image'">
+                <div class="info" style="text-align:center;">
+                    <span style="color:#FFE600; font-size: 0.8rem; font-weight:bold;">${l.nomination}</span><br>
+                    <b style="font-size: 1.2rem;">${l.name}</b>
+                </div>
+            </div>`;
+    });
 }

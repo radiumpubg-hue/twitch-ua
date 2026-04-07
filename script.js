@@ -1,5 +1,5 @@
 const CLIENT_ID = 'm3l01pm0lc1hyw65z60xb0dmr5kq6w';
-const REDIRECT_URI = 'https://radiumpubg-hue.github.io/twitch-ua/'; 
+const REDIRECT_URI = 'https://radiumpubg-hue.github.io/twitch-ua/';
 let accessToken = localStorage.getItem('twitch_access_token');
 let allStreams = [];
 
@@ -14,15 +14,11 @@ window.onload = function() {
         window.history.replaceState({}, document.title, window.location.pathname);
     }
 
-    // Пошук працює по натисканню клавіш
-    document.getElementById('search-input').addEventListener('input', (e) => {
+    document.getElementById('search-input').oninput = (e) => {
         const query = e.target.value.toLowerCase();
-        const filtered = allStreams.filter(s => 
-            s.user_name.toLowerCase().includes(query) || 
-            s.game_name.toLowerCase().includes(query)
-        );
+        const filtered = allStreams.filter(s => s.user_name.toLowerCase().includes(query));
         renderGrid(filtered);
-    });
+    };
 
     document.getElementById('btn-home').onclick = () => {
         document.getElementById('main-section').style.display = 'block';
@@ -54,12 +50,12 @@ async function loadUserProfile() {
         if (data.data[0]) {
             const user = data.data[0];
             document.getElementById('auth-container').innerHTML = `
-                <div style="display: flex; flex-direction: column; align-items: center; gap: 4px;">
-                    <img src="${user.profile_image_url}" width="35" style="border-radius: 50%; border: 2px solid #9146ff;">
-                    <span style="font-size: 11px; font-weight: bold;">${user.display_name}</span>
+                <div class="user-profile">
+                    <img src="${user.profile_image_url}" width="35">
+                    <span style="font-size:12px">${user.display_name}</span>
                 </div>`;
         }
-    } catch (e) { console.error(e); }
+    } catch (e) {}
 }
 
 async function loadStreams() {
@@ -70,58 +66,59 @@ async function loadStreams() {
         const data = await res.json();
         allStreams = data.data || [];
         renderGrid(allStreams);
-    } catch (e) { document.getElementById('status').innerText = "Помилка завантаження стрімів"; }
+    } catch (e) {}
 }
 
 function renderGrid(streams) {
     const grid = document.getElementById('streamers-grid');
     grid.innerHTML = '';
-    document.getElementById('status').innerText = streams.length > 0 ? `Онлайн: ${streams.length}` : "Нікого не знайдено";
-    
+    document.getElementById('status').innerText = streams.length > 0 ? `Онлайн: ${streams.length}` : "Стрімерів не знайдено";
     streams.forEach(s => {
         const thumb = s.thumbnail_url.replace('{width}', '400').replace('{height}', '225');
         grid.innerHTML += `
             <div class="card">
-                <a href="https://twitch.tv/${s.user_login}" target="_blank" style="text-decoration:none; color:inherit;">
-                    <img src="${thumb}" style="width:100%; border-radius: 8px;">
-                    <div class="info" style="padding:10px;">
-                        <b>${s.user_name}</b><br>
-                        <small style="color:#adadb8">${s.game_name}</small>
-                    </div>
+                <a href="https://twitch.tv/${s.user_login}" target="_blank" style="text-decoration:none;color:inherit">
+                    <img src="${thumb}">
+                    <div class="info"><b>${s.user_name}</b><br><small>${s.game_name}</small></div>
                 </a>
             </div>`;
     });
 }
 
-function renderHall() {
-    // Враховано назви файлів з твоїх скріншотів
+async function renderHall() {
     const awards2024 = [
-        { n: "СТРИМЕР РОКУ", u: "Leb1ga", i: "leb1ga_tour.png" },
-        { n: "СТРИМЕРКА РОКУ", u: "Dobra_Divka", i: "logo.png.png" },
-        { n: "ГРА РОКУ", u: "S.T.A.L.K.E.R. 2", i: "stalker-2-heart-of-chornobyl.webp" },
-        { n: "ДЕБЮТ РОКУ", u: "OTOYSOUNDS", i: "logo.png.png" }
+        { login: "leb1ga", nom: "СТРИМЕР РОКУ" },
+        { login: "dobra_divka", nom: "СТРИМЕРКА РОКУ" },
+        { login: "leniniw", nom: "КРАЩИЙ З CS2" },
+        { login: "ghostik", nom: "КРАЩИЙ З DOTA 2" },
+        { login: "otoysounds", nom: "ДЕБЮТ РОКУ" },
+        { title: "S.T.A.L.K.E.R. 2", nom: "ГРА РОКУ", file: "stalker-2-heart-of-chornobyl.webp" }
     ];
 
     const awards2025 = [
-        { n: "КРАЩЕ ШОУ", u: "Мафія", i: "mafiia-zi-strimerami-leb1ga.webp" },
-        { n: "КОЛАБОРАЦІЯ РОКУ", u: "Виживання 24 години", i: "vizivannia-24-godini-v-lisi-leb1ga-luzan.webp" },
-        { n: "МАРАФОН РОКУ", u: "Марафон схуднення", i: "marafon-sxudnennia-leb1ga.webp" },
-        { n: "ВИБІР СПІЛЬНОТИ", u: "thetremba", i: "logo.png.png" }
+        { login: "roolex9", nom: "СТРИМЕР РОКУ" },
+        { login: "sheisfoxy", nom: "СТРИМЕРКА РОКУ" },
+        { login: "guthriee", nom: "ЗАВЖДИ В ЕТЕРІ" },
+        { login: "thetremba", nom: "ВИБІР СПІЛЬНОТИ" },
+        { title: "Мафія", nom: "КРАЩЕ ШОУ", file: "mafiia-zi-strimerami.webp" },
+        { title: "Виживання", nom: "КОЛАБОРАЦІЯ", file: "vizivannia-24-godini.webp" },
+        { title: "Марафон", nom: "МАРАФОН РОКУ", file: "marafon-sxudnennia.webp" }
     ];
 
-    const fill = (id, list) => {
+    const logins = [...new Set([...awards2024, ...awards2025].filter(a => a.login).map(a => a.login))];
+    const res = await fetch(`https://api.twitch.tv/helix/users?login=${logins.join('&login=')}`, {
+        headers: { 'Client-ID': CLIENT_ID, 'Authorization': `Bearer ${accessToken}` }
+    });
+    const userData = await res.json();
+    const avatars = {};
+    userData.data.forEach(u => avatars[u.login] = u.profile_image_url);
+
+    const fill = (id, data) => {
         const el = document.getElementById(id);
         el.innerHTML = '';
-        list.forEach(a => {
-            el.innerHTML += `
-                <div class="card" style="border: 1px solid #333; text-align:center; background:#18181b;">
-                    <img src="${a.i}" style="width:100%; height:150px; object-fit:cover;" 
-                         onerror="this.src='https://placehold.jp/24/333333/ffffff/400x225.png?text=UA+Twitch'">
-                    <div class="info" style="padding:15px;">
-                        <p style="color:#ffd700; font-size:10px; font-weight:bold; margin:0;">${a.n}</p>
-                        <p style="font-size:16px; font-weight:bold; margin:5px 0 0;">${a.u}</p>
-                    </div>
-                </div>`;
+        data.forEach(a => {
+            let imgHtml = a.login ? `<img src="${avatars[a.login]}" class="award-avatar">` : `<img src="${a.file}" class="award-poster">`;
+            el.innerHTML += `<div class="card award-card"><span class="nomination-text">${a.nom}</span>${imgHtml}<div class="winner-name">${a.login || a.title}</div></div>`;
         });
     };
     fill('hall-2024', awards2024);

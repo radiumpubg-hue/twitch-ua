@@ -3,23 +3,21 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>UA Streamers Hub</title>
+    <title>Український Твіч</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <header>
         <div class="header-left">
             <a href="index.html" id="logo-link">
-                <img src="Twitch logo in Ukrainian colors-fotor-bg-remover-20260407183315.png" alt="Logo" width="40">
+                <img src="logo.png" alt="Logo" width="40" onerror="this.src='https://pwa.twitch.tv/assets/apple-touch-icon-120.png'">
                 <h1>Український Твіч</h1>
             </a>
         </div>
-
         <nav>
             <button id="show-main">Головна</button>
             <button id="show-hall">Зал Слави 🏆</button>
         </nav>
-
         <div id="auth-container">
             <button id="login-btn">Увійти через Twitch</button>
         </div>
@@ -28,17 +26,15 @@
     <div class="container" id="main-content">
         <div class="search-section">
             <div class="search-bar">
-                <input type="text" id="search-input" placeholder="Кого шукаємо? (напр. Leb1ga)">
+                <input type="text" id="search-input" placeholder="Кого шукаємо?">
                 <select id="category-filter">
                     <option value="all">Усі категорії</option>
                     <option value="Just Chatting">Тільки спілкування</option>
                     <option value="Minecraft">Minecraft</option>
                     <option value="Dota 2">Dota 2</option>
                     <option value="Counter-Strike">CS 2</option>
-                    <option value="Grand Theft Auto V">GTA V</option>
                 </select>
             </div>
-            <div id="search-history"></div>
         </div>
         <div id="status">Завантаження...</div>
         <div id="streamers-grid" class="grid"></div>
@@ -47,7 +43,6 @@
     <div class="container" id="hall-of-fame" style="display: none;">
         <div id="hall-content"></div>
     </div>
-
     <script src="script.js"></script>
 </body>
 </html>

@@ -5,19 +5,32 @@ let onlineStreams = [];
 let accessToken = localStorage.getItem('twitch_access_token');
 let favorites = JSON.parse(localStorage.getItem('twitch_favorites') || '[]');
 
+// Повні дані переможців зі скріншотів
 const awardsData = [
-    {
-        year: 2026,
-        winners: [
-            { nom: "Стрімер року", name: "Leb1ga" },
-            { nom: "Найкращий ігровий стрімер", name: "Ghostik" }
-        ]
-    },
     {
         year: 2025,
         winners: [
-            { nom: "Стрімер року", name: "Leb1ga" },
-            { nom: "Найкращий CS2 стрімер", name: "s1mple" }
+            { nom: "Стример року", name: "roolex9" },
+            { nom: "Стримерка року", name: "sheisfoxy" },
+            { nom: "Дебют року", name: "valentinopradagucci" },
+            { nom: "Non-gaming стример", name: "Leb1ga" },
+            { nom: "Кращий стример з CS2", name: "Leb1ga" },
+            { nom: "Кращий стример з Dota 2", name: "Ghostik" },
+            { nom: "VTuber року", name: "luma_rum" },
+            { nom: "Завжди в етері", name: "guthriee" },
+            { nom: "Вибір спільноти", name: "thetremba" }
+        ]
+    },
+    {
+        year: 2024,
+        winners: [
+            { nom: "Стример року", name: "Leb1ga" },
+            { nom: "Стримерка року", name: "Dobra_Divka" },
+            { nom: "Дебют року", name: "OTOYSOUNDS" },
+            { nom: "Стример IRL", name: "Leb1ga" },
+            { nom: "Кращий стример з CS2", name: "Leniniw" },
+            { nom: "Кращий стример з Dota 2", name: "Ghostik" },
+            { nom: "VTuber року", name: "luma_rum" }
         ]
     }
 ];
@@ -31,40 +44,29 @@ window.onload = function() {
     const searchInput = document.getElementById('search-input');
     const categoryFilter = document.getElementById('category-filter');
 
-    // Навігація
     showMain.onclick = () => {
-        mainContent.style.display = 'block';
-        hallOfFame.style.display = 'none';
-        showMain.style.color = 'white';
-        showHall.style.color = '#adadb8';
+        mainContent.style.display = 'block'; hallOfFame.style.display = 'none';
+        showMain.style.color = 'white'; showHall.style.color = '#adadb8';
     };
 
     showHall.onclick = () => {
-        mainContent.style.display = 'none';
-        hallOfFame.style.display = 'block';
-        showHall.style.color = 'white';
-        showMain.style.color = '#adadb8';
+        mainContent.style.display = 'none'; hallOfFame.style.display = 'block';
+        showHall.style.color = 'white'; showMain.style.color = '#adadb8';
         renderHall();
     };
 
-    // Обробка токена
+    // Авторизація
     const hash = window.location.hash.substring(1);
     const params = new URLSearchParams(hash);
     const newToken = params.get('access_token');
-
     if (newToken) {
         accessToken = newToken;
         localStorage.setItem('twitch_access_token', newToken);
         window.history.replaceState({}, document.title, window.location.pathname);
     }
 
-    if (accessToken) {
-        loadUserProfile();
-        loadInitialStreams();
-        renderHistory();
-    } else {
-        statusText.textContent = "Будь ласка, увійдіть через Twitch";
-    }
+    if (accessToken) { loadUserProfile(); loadInitialStreams(); renderHistory(); }
+    else { statusText.textContent = "Будь ласка, авторизуйтесь через Twitch"; }
 
     document.getElementById('login-btn').onclick = () => {
         const authUrl = `https://id.twitch.tv/oauth2/authorize?client_id=${CLIENT_ID}&redirect_uri=${encodeURIComponent(REDIRECT_URI)}&response_type=token&scope=user:read:email`;
@@ -72,7 +74,7 @@ window.onload = function() {
     };
 
     async function loadInitialStreams() {
-        statusText.textContent = "Шукаємо стріми...";
+        statusText.textContent = "Завантаження...";
         try {
             const res = await fetch('https://api.twitch.tv/helix/streams?language=uk&first=100', {
                 headers: { 'Client-ID': CLIENT_ID, 'Authorization': `Bearer ${accessToken}` }
@@ -80,14 +82,13 @@ window.onload = function() {
             const data = await res.json();
             onlineStreams = data.data || [];
             applyFilters();
-        } catch (e) { statusText.textContent = "Помилка завантаження."; }
+        } catch (e) { statusText.textContent = "Помилка API."; }
     }
 
     function applyFilters() {
         const query = searchInput.value.toLowerCase().trim();
-        if (query) {
-            searchTwitch(query);
-        } else {
+        if (query) searchTwitch(query);
+        else {
             const category = categoryFilter.value;
             const filtered = onlineStreams.filter(s => (category === "all") || (s.game_name === category));
             render(filtered);
@@ -102,14 +103,13 @@ window.onload = function() {
             });
             const data = await res.json();
             renderSearchResults(data.data || []);
-        } catch (e) { console.error(e); }
+        } catch (e) {}
     }
 
     function render(streams) {
         const grid = document.getElementById('streamers-grid');
         grid.innerHTML = '';
         statusText.textContent = `В ефірі: ${streams.length}`;
-
         streams.sort((a, b) => {
             const aFav = favorites.includes(a.user_login);
             const bFav = favorites.includes(b.user_login);
@@ -135,22 +135,34 @@ window.onload = function() {
         });
     }
 
+    // Рендер Залу Слави
+    function renderHall() {
+        const container = document.getElementById('hall-content');
+        container.innerHTML = '';
+        awardsData.forEach(section => {
+            const yearSec = document.createElement('div');
+            yearSec.className = 'hall-year-section';
+            yearSec.innerHTML = `<h3 class="hall-year-title">${section.year} РІК</h3><div class="hall-grid"></div>`;
+            const hallGrid = yearSec.querySelector('.hall-grid');
+            
+            section.winners.forEach(w => {
+                hallGrid.innerHTML += `
+                    <a href="https://twitch.tv/${w.name.toLowerCase()}" target="_blank" class="award-card">
+                        <span class="award-nomination">${w.nom}</span>
+                        <div class="award-winner">${w.name}</div>
+                    </a>`;
+            });
+            container.appendChild(yearSec);
+        });
+    }
+
+    // Інші допоміжні функції... (toggleFav, saveToHistory, renderHistory, loadUserProfile)
     window.toggleFav = (login) => {
         if (favorites.includes(login)) favorites = favorites.filter(f => f !== login);
         else favorites.push(login);
         localStorage.setItem('twitch_favorites', JSON.stringify(favorites));
         applyFilters();
     };
-
-    function renderHall() {
-        const hall = document.getElementById('hall-content');
-        hall.innerHTML = '';
-        awardsData.forEach(y => {
-            let html = `<div class="year-block"><h3>Рік ${y.year}</h3>`;
-            y.winners.forEach(w => html += `<div class="nomination"><span>${w.nom}</span><span class="winner">${w.name}</span></div>`);
-            hall.innerHTML += html + `</div>`;
-        });
-    }
 
     function saveToHistory(q) {
         if(q.length < 2) return;
@@ -168,27 +180,15 @@ window.onload = function() {
 
     async function loadUserProfile() {
         try {
-            const res = await fetch('https://api.twitch.tv/helix/users', {
-                headers: { 'Client-ID': CLIENT_ID, 'Authorization': `Bearer ${accessToken}` }
-            });
+            const res = await fetch('https://api.twitch.tv/helix/users', { headers: { 'Client-ID': CLIENT_ID, 'Authorization': `Bearer ${accessToken}` } });
             const data = await res.json();
             if (data.data && data.data[0]) {
                 const u = data.data[0];
-                document.getElementById('auth-container').innerHTML = `
-                    <div style="display:flex; align-items:center; gap:8px;">
-                        <img src="${u.profile_image_url}" style="width:32px; border-radius:50%;">
-                        <span style="font-weight:bold; font-size:0.85em;">${u.display_name}</span>
-                    </div>`;
+                document.getElementById('auth-container').innerHTML = `<div style="display:flex; align-items:center; gap:8px;"><img src="${u.profile_image_url}" style="width:32px; border-radius:50%;"><span style="font-weight:bold; font-size:0.85em;">${u.display_name}</span></div>`;
             }
         } catch (e) {}
     }
 
-    searchInput.oninput = () => { 
-        clearTimeout(window.searchTimer); 
-        window.searchTimer = setTimeout(applyFilters, 600); 
-    };
+    searchInput.oninput = () => { clearTimeout(window.searchTimer); window.searchTimer = setTimeout(applyFilters, 600); };
     categoryFilter.onchange = applyFilters;
-
-    // Спеціальний обробник для кліку по історії
-    window.addEventListener('input', (e) => { if(e.target.id === 'search-input') applyFilters(); });
 };

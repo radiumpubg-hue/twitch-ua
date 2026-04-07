@@ -1,27 +1,32 @@
-body { font-family: 'Segoe UI', system-ui, sans-serif; background: #0e0e10; color: #efeff1; margin: 0; }
-header { display: flex; justify-content: space-between; align-items: center; padding: 10px 5%; background: #18181b; border-bottom: 1px solid #303032; position: sticky; top: 0; z-index: 100; }
-#logo-link { text-decoration: none; display: flex; align-items: center; gap: 15px; color: white; }
-header h1 { margin: 0; font-size: 1.5rem; letter-spacing: -1px; }
-nav button { background: none; border: none; color: #adadb8; cursor: pointer; font-weight: bold; font-size: 1rem; margin-left: 15px; }
+body { font-family: 'Segoe UI', sans-serif; background: #0e0e10; color: #efeff1; margin: 0; }
+header { display: flex; justify-content: space-between; align-items: center; padding: 10px 5%; background: #18181b; position: sticky; top: 0; z-index: 100; border-bottom: 1px solid #303032; }
+#logo-link { text-decoration: none; display: flex; align-items: center; gap: 10px; color: white; }
+header h1 { margin: 0; font-size: 1.3rem; }
+
+nav { display: flex; gap: 20px; }
+nav button { background: none; border: none; color: #adadb8; cursor: pointer; font-weight: bold; transition: 0.2s; }
+nav button:hover { color: white; }
+
+#login-btn { background: #9146ff; color: white; border: none; padding: 8px 16px; border-radius: 4px; font-weight: bold; cursor: pointer; }
+
 .container { padding: 20px 5%; }
-.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; }
+.search-section { margin-bottom: 20px; }
+.search-bar { display: flex; gap: 10px; margin-bottom: 10px; }
+input, select { background: #1f1f23; border: 1px solid #303032; color: white; padding: 8px 12px; border-radius: 4px; outline: none; }
+input { flex-grow: 1; }
 
-.card { background: #1f1f23; border-radius: 10px; overflow: hidden; position: relative; border: 2px solid transparent; transition: 0.2s; min-height: 200px; }
-.card:hover { transform: translateY(-5px); border-color: #9146ff; }
+.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 20px; }
+.card { background: #1f1f23; border-radius: 8px; overflow: hidden; transition: 0.2s; position: relative; }
+.card:hover { transform: scale(1.02); }
 .card img { width: 100%; display: block; aspect-ratio: 16/9; object-fit: cover; }
-.info { padding: 15px; }
-
-.status-badge { position: absolute; bottom: 10px; left: 10px; background: rgba(0,0,0,0.8); padding: 2px 8px; border-radius: 4px; font-size: 0.75rem; font-weight: bold; }
-.status-online { color: #ff4a4a; border: 1px solid #ff4a4a; }
-.status-offline { color: #adadb8; border: 1px solid #303032; }
-
-.fav-btn { position: absolute; top: 10px; right: 10px; background: rgba(0,0,0,0.7); border: none; color: white; width: 35px; height: 35px; border-radius: 50%; cursor: pointer; z-index: 5; font-size: 1.2rem; }
-.fav-btn.active { color: #eb0400; }
-
-#login-btn { background: #9146ff; color: white; border: none; padding: 10px 20px; border-radius: 5px; font-weight: bold; cursor: pointer; }
+.info { padding: 12px; }
+.live-label { position: absolute; top: 165px; left: 10px; background: #eb0400; color: white; padding: 2px 6px; font-size: 0.7rem; font-weight: bold; border-radius: 2px; }
 
 /* Зал Слави */
-.hall-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 20px; }
-.award-card { background: #18181b; border: 1px solid #303032; border-radius: 12px; padding: 20px; text-align: center; text-decoration: none; color: inherit; transition: 0.2s; }
-.award-card:hover { border-color: #FFE600; transform: scale(1.03); }
-.award-avatar { width: 90px; height: 90px; border-radius: 50%; border: 3px solid #FFE600; margin: 0 auto 12px; object-fit: cover; }
+.hall-title { text-align: center; color: #FFE600; margin: 40px 0; font-size: 1.5rem; }
+.hall-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 15px; }
+.award-card { background: #18181b; border: 1px solid #303032; border-radius: 8px; padding: 15px; text-align: center; text-decoration: none; color: inherit; transition: 0.2s; }
+.award-card:hover { border-color: #FFE600; background: #232327; }
+.award-avatar { width: 80px; height: 80px; border-radius: 50%; border: 2px solid #FFE600; margin-bottom: 10px; }
+.nomination-text { color: #FFE600; font-size: 0.65rem; text-transform: uppercase; display: block; margin-bottom: 5px; }
+.winner-name { font-weight: bold; font-size: 0.9rem; }

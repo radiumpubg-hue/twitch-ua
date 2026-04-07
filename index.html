@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Український Твіч</title> <link rel="stylesheet" href="style.css">
+    <title>Український Твіч</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <header>
@@ -24,18 +25,21 @@
     </header>
 
     <div class="container">
-        <div class="search-bar">
-            <input type="text" id="search-input" placeholder="Кого шукаємо? (введіть нік)...">
-            <select id="category-filter">
-                <option value="all">Усі категорії</option>
-                <option value="Just Chatting">Тільки спілкування</option>
-                <option value="Minecraft">Minecraft</option>
-                <option value="Dota 2">Dota 2</option>
-                <option value="Counter-Strike">CS 2</option>
-                <option value="Valorant">Valorant</option>
-                <option value="Grand Theft Auto V">GTA V</option>
-                <option value="Software and Game Development">Програмування</option>
-            </select>
+        <div class="search-bar-section">
+            <div class="search-bar">
+                <input type="text" id="search-input" placeholder="Кого шукаємо? (введіть нік)...">
+                <select id="category-filter">
+                    <option value="all">Усі категорії</option>
+                    <option value="Just Chatting">Тільки спілкування</option>
+                    <option value="Minecraft">Minecraft</option>
+                    <option value="Dota 2">Dota 2</option>
+                    <option value="Counter-Strike">CS 2</option>
+                    <option value="Valorant">Valorant</option>
+                    <option value="Grand Theft Auto V">GTA V</option>
+                    <option value="Software and Game Development">Програмування</option>
+                </select>
+            </div>
+            <div id="search-history" style="display: flex; gap: 8px; flex-wrap: wrap; margin-top: 10px;"></div>
         </div>
 
         <div id="status">Завантаження...</div>

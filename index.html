@@ -2,37 +2,35 @@
 <html lang="uk">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Український Твіч</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <header>
-        <div class="header-left">
-            <a href="index.html" id="logo-link">
-                <img src="Twitch logo in Ukrainian colors-fotor-bg-remover-20260407183315.png" alt="Logo" width="40" onerror="this.src='https://pwa.twitch.tv/assets/apple-touch-icon-120.png'">
-                <h1>Український Твіч</h1>
-            </a>
+        <div class="logo-area">
+            <img src="logo.png" alt="Logo" width="40" onerror="this.src='https://pwa.twitch.tv/assets/apple-touch-icon-120.png'">
+            <h1>UA Twitch</h1>
         </div>
         <nav>
-            <button id="show-main">Головна</button>
-            <button id="show-hall">Зал Слави 🏆</button>
+            <button id="btn-home">Головна</button>
+            <button id="btn-hall">Зал Слави 🏆</button>
         </nav>
-        <div id="auth-container">
-            <button id="login-btn">Увійти через Twitch</button>
+        <div id="auth-box">
+            <button id="login-btn">Увійти</button>
         </div>
     </header>
 
-    <div class="container" id="main-content">
-        <div class="search-bar">
-            <input type="text" id="search-input" placeholder="Пошук (знайдемо навіть офлайн)...">
+    <main id="main-section">
+        <div class="search-container">
+            <input type="text" id="search-input" placeholder="Шукати стрімера (навіть якщо він офлайн)...">
         </div>
-        <div id="status">Будь ласка, авторизуйтесь...</div>
+        <h2 id="status">Завантаження...</h2>
         <div id="streamers-grid" class="grid"></div>
-    </div>
+    </main>
 
-    <div class="container" id="hall-of-fame" style="display: none;">
-        <div id="hall-content"></div>
+    <div id="hall-section" style="display:none;" class="container">
+        <h2 class="hall-title">🏆 Зал Слави 🏆</h2>
+        <div id="hall-content" class="grid"></div>
     </div>
 
     <script src="script.js"></script>

@@ -1,9 +1,9 @@
 body { font-family: 'Segoe UI', sans-serif; background: #0e0e10; color: #efeff1; margin: 0; }
 header { display: flex; justify-content: space-between; align-items: center; padding: 10px 5%; background: #18181b; border-bottom: 1px solid #303032; position: sticky; top: 0; z-index: 100; }
 #logo-link { text-decoration: none; display: flex; align-items: center; gap: 12px; color: white; }
-header h1 { margin: 0; font-size: 1.2rem; white-space: nowrap; }
+header h1 { margin: 0; font-size: 1.2rem; }
 
-nav button { background: none; border: none; color: #adadb8; cursor: pointer; font-weight: bold; padding: 10px; font-size: 0.95rem; }
+nav button { background: none; border: none; color: #adadb8; cursor: pointer; font-weight: bold; padding: 10px; font-size: 0.9rem; }
 nav button:hover { color: white; }
 
 #login-btn { background: #9146ff; color: white; border: none; padding: 8px 16px; border-radius: 4px; font-weight: bold; cursor: pointer; }
@@ -27,11 +27,9 @@ input { flex-grow: 1; }
 .info small { color: #adadb8; display: block; }
 
 /* Зал Слави */
-.hall-title { text-align: center; color: #FFE600; margin: 50px 0 30px; font-size: 1.4rem; text-transform: uppercase; font-weight: 900; }
-.hall-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 20px; }
-.award-card { background: #18181b; border: 1px solid #303032; border-radius: 12px; padding: 20px; text-align: center; text-decoration: none; color: inherit; transition: 0.2s; display: flex; flex-direction: column; align-items: center; }
-.award-card:hover { border-color: #FFE600; background: #1f1f23; }
-.award-avatar { width: 85px; height: 85px; border-radius: 50%; border: 3px solid #FFE600; margin-bottom: 12px; object-fit: cover; }
-.award-poster { width: 100%; height: 110px; border-radius: 8px; margin-bottom: 12px; object-fit: cover; }
-.nomination-text { color: #FFE600; font-size: 0.65rem; font-weight: bold; text-transform: uppercase; margin-bottom: 6px; letter-spacing: 0.5px; }
-.winner-name { font-weight: bold; font-size: 1rem; line-height: 1.2; }
+.hall-title { text-align: center; color: #FFE600; margin: 40px 0 20px; font-size: 1.4rem; text-transform: uppercase; font-weight: bold; }
+.hall-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 15px; }
+.award-card { background: #18181b; border: 1px solid #303032; border-radius: 12px; padding: 15px; text-align: center; text-decoration: none; color: inherit; display: flex; flex-direction: column; align-items: center; }
+.award-avatar { width: 80px; height: 80px; border-radius: 50%; border: 2px solid #FFE600; margin-bottom: 10px; object-fit: cover; }
+.award-poster { width: 100%; height: 100px; border-radius: 8px; margin-bottom: 10px; object-fit: cover; }
+.nomination-text { color: #FFE600; font-size: 0.65rem; font-weight: bold; text-transform: uppercase; margin-bottom: 5px; }

@@ -9,9 +9,9 @@
 <body>
     <header>
         <div class="header-left">
-            <a href="index.html" id="logo-link">
-                <img src="logo.png" alt="UA" width="40" onerror="this.style.display='none'">
-                <h1>Український Твіч</h1>
+            <a href="index.html" id="logo-link" style="display: flex; align-items: center; text-decoration: none; color: white; gap: 10px;">
+                <img src="logo.png.png" alt="UA" width="40" onerror="this.src='https://placehold.jp/40x40.png'">
+                <h1 style="margin: 0; font-size: 1.2rem;">Український Твіч</h1>
             </a>
         </div>
         <nav>
@@ -24,21 +24,20 @@
     </header>
 
     <main id="main-section" class="container">
-        <div class="search-bar">
-            <input type="text" id="search-input" placeholder="Кого шукаємо? (знайдемо навіть офлайн)">
+        <div class="search-bar" style="margin: 20px 0; text-align: center;">
+            <input type="text" id="search-input" placeholder="Пошук стрімерів (UA)..." 
+                   style="width: 100%; padding: 12px; border-radius: 8px; border: 1px solid #333; background: #18181b; color: white;">
         </div>
-        
-        <h2 id="status">Завантаження...</h2>
-        
+        <h2 id="status" style="text-align: center; color: #adadb8;">Натисніть "Увійти", щоб побачити стріми</h2>
         <div id="streamers-grid" class="grid"></div>
     </main>
 
     <section id="hall-section" class="container" style="display: none;">
-        <h2 class="hall-title">🏆 ПЕРЕМОЖЦІ STREAM AWARDS 2024: UKRAINIAN EDITION 🏆</h2>
-        <div id="hall-2024" class="grid hall-grid"></div>
+        <h2 class="hall-title" style="text-align: center; color: white; margin: 40px 0;">🏆 ПЕРЕМОЖЦІ STREAM AWARDS 2024 🏆</h2>
+        <div id="hall-2024" class="grid"></div>
 
-        <h2 class="hall-title" style="margin-top: 50px;">🏆 ПЕРЕМОЖЦІ STREAM AWARDS 2025: UKRAINIAN EDITION 🏆</h2>
-        <div id="hall-2025" class="grid hall-grid"></div>
+        <h2 class="hall-title" style="text-align: center; color: white; margin: 60px 0 40px;">🏆 ПЕРЕМОЖЦІ STREAM AWARDS 2025 🏆</h2>
+        <div id="hall-2025" class="grid"></div>
     </section>
 
     <script src="script.js"></script>

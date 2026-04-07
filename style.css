@@ -1,34 +1,127 @@
-/* ... Твої попередні стилі залишаються ... */
+body {
+    font-family: 'Segoe UI', system-ui, sans-serif;
+    background: #0e0e10;
+    color: #efeff1;
+    margin: 0;
+}
 
-body { font-family: 'Segoe UI', system-ui, sans-serif; background: #0e0e10; color: #efeff1; margin: 0; }
-header { display: flex; justify-content: space-between; align-items: center; padding: 10px 5%; background: #18181b; border-bottom: 1px solid #303032; position: sticky; top: 0; z-index: 100; }
-#logo-link { text-decoration: none; display: flex; align-items: center; gap: 15px; color: white; }
+header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 5%;
+    background: #18181b;
+    border-bottom: 1px solid #303032;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+}
+
+#logo-link {
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    color: white;
+}
+
 header h1 { margin: 0; font-size: 1.5rem; letter-spacing: -1px; }
-nav { display: flex; gap: 20px; }
-nav button { background: none; border: none; color: #adadb8; cursor: pointer; font-weight: bold; font-size: 1rem; transition: 0.2s; }
-nav button:hover { color: white; }
-.container { padding: 20px 5%; }
-.search-bar { display: flex; gap: 10px; margin-bottom: 10px; }
-input, select { background: #1f1f23; border: 2px solid #303032; color: white; padding: 12px; border-radius: 8px; outline: none; flex-grow: 1; }
-select { flex-grow: 0; width: 200px; }
-#search-history { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 20px; min-height: 30px; }
-.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; }
 
-/* Стилі для карток */
-.card { background: #1f1f23; border-radius: 10px; overflow: hidden; position: relative; border: 2px solid transparent; transition: 0.2s; }
+nav { display: flex; gap: 20px; }
+
+nav button {
+    background: none;
+    border: none;
+    color: #adadb8;
+    cursor: pointer;
+    font-weight: bold;
+    font-size: 1rem;
+    transition: 0.2s;
+}
+
+nav button:hover { color: white; }
+
+.container { padding: 20px 5%; }
+
+.search-bar { display: flex; gap: 10px; margin-bottom: 10px; }
+
+input, select {
+    background: #1f1f23;
+    border: 2px solid #303032;
+    color: white;
+    padding: 12px;
+    border-radius: 8px;
+    outline: none;
+    flex-grow: 1;
+}
+
+select { flex-grow: 0; width: 200px; }
+
+#search-history { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 20px; min-height: 30px; }
+
+.grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 20px;
+}
+
+.card {
+    background: #1f1f23;
+    border-radius: 10px;
+    overflow: hidden;
+    position: relative;
+    border: 2px solid transparent;
+    transition: 0.2s;
+}
+
 .card:hover { transform: translateY(-5px); border-color: #9146ff; }
 .card img { width: 100%; display: block; }
 .info { padding: 15px; }
 
-/* Кнопка "Улюблені" */
-.fav-btn { position: absolute; top: 10px; right: 10px; background: rgba(0,0,0,0.7); border: none; color: white; width: 35px; height: 35px; border-radius: 50%; cursor: pointer; z-index: 5; display: flex; align-items: center; justify-content: center; }
+.fav-btn {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: rgba(0,0,0,0.7);
+    border: none;
+    color: white;
+    width: 35px;
+    height: 35px;
+    border-radius: 50%;
+    cursor: pointer;
+    z-index: 5;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
 .fav-btn.active { color: #eb0400; }
+
+#login-btn {
+    background: #9146ff;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    font-weight: bold;
+    cursor: pointer;
+}
 
 /* Зал Слави */
 .hall-year-section { margin-bottom: 50px; }
-.hall-year-title { font-size: 2rem; color: #FFE600; border-bottom: 2px solid #303032; padding-bottom: 10px; margin-bottom: 30px; }
-.hall-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 15px; }
-.award-card { background: #18181b; border: 1px solid #303032; border-radius: 8px; padding: 15px; text-align: center; transition: 0.2s; text-decoration: none; color: inherit; display: block; }
-.award-card:hover { border-color: #FFE600; background: #232327; }
-.award-nomination { color: #FFE600; font-size: 0.7rem; font-weight: bold; text-transform: uppercase; margin-bottom: 8px; display: block; }
-.award-winner { color: white; font-size: 1.1rem; font-weight: bold; }
+.hall-year-title { font-size: 1.8rem; color: #FFE600; border-bottom: 1px solid #303032; padding-bottom: 10px; margin-bottom: 25px; }
+.hall-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 20px; }
+.award-card { 
+    background: #18181b; 
+    border: 1px solid #303032; 
+    border-radius: 12px; 
+    padding: 20px; 
+    text-align: center; 
+    text-decoration: none; 
+    color: inherit; 
+    transition: 0.2s; 
+}
+.award-card:hover { border-color: #FFE600; background: #232327; transform: scale(1.03); }
+.award-avatar { width: 90px; height: 90px; border-radius: 50%; border: 3px solid #FFE600; margin: 0 auto 12px; background: #333; object-fit: cover; }
+.award-nomination { color: #adadb8; font-size: 0.7rem; font-weight: bold; text-transform: uppercase; display: block; margin-bottom: 5px; }
+.award-winner { color: white; font-size: 1rem; font-weight: bold; }

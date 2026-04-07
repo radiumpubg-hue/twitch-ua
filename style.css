@@ -1,0 +1,35 @@
+body {
+    background-color: #18181b;
+    color: white;
+    font-family: Arial;
+    text-align: center;
+}
+
+#streamers-container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 20px;
+    padding: 20px;
+}
+
+.card {
+    background: #242428;
+    border-radius: 10px;
+    padding: 10px;
+    width: 300px;
+}
+
+img {
+    width: 100%;
+    border-radius: 5px;
+}
+
+button {
+    background: #9146ff;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    cursor: pointer;
+    border-radius: 5px;
+}

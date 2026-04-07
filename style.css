@@ -1,87 +1,34 @@
-body {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background: #0e0e10;
-    color: #efeff1;
-    margin: 0;
+/* ... попередні стилі залишаються ... */
+
+.fav-btn {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: rgba(0,0,0,0.6);
+    border: none;
+    color: white;
+    padding: 5px 8px;
+    border-radius: 50%;
+    cursor: pointer;
+    z-index: 10;
+    font-size: 1.2rem;
 }
 
-header {
+.fav-btn.active { color: #eb0400; }
+
+.year-block {
+    background: #18181b;
+    border-radius: 15px;
+    padding: 20px;
+    margin-bottom: 30px;
+    border-left: 5px solid #FFE600;
+}
+
+.nomination {
     display: flex;
     justify-content: space-between;
-    align-items: center;
-    padding: 10px 5%;
-    background: #18181b;
+    padding: 10px 0;
     border-bottom: 1px solid #303032;
-    position: sticky;
-    top: 0;
-    z-index: 100;
 }
 
-.container {
-    padding: 20px 5%;
-}
-
-.search-bar-section {
-    margin-bottom: 25px;
-}
-
-.search-bar {
-    display: flex;
-    gap: 10px;
-}
-
-input, select {
-    background: #1f1f23;
-    border: 2px solid #303032;
-    color: white;
-    padding: 12px;
-    border-radius: 8px;
-    font-size: 16px;
-    outline: none;
-    transition: 0.2s;
-}
-
-input:focus, select:focus {
-    border-color: #9146ff;
-}
-
-input { flex-grow: 1; }
-
-.grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-    gap: 20px;
-}
-
-.card {
-    background: #1f1f23;
-    border-radius: 10px;
-    overflow: hidden;
-    transition: transform 0.2s, box-shadow 0.2s;
-    border: 2px solid transparent;
-}
-
-.card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 10px 20px rgba(0,0,0,0.5);
-}
-
-.info { padding: 15px; }
-
-#login-btn {
-    background: #9146ff;
-    color: white;
-    border: none;
-    padding: 10px 20px;
-    border-radius: 5px;
-    font-weight: bold;
-    cursor: pointer;
-}
-
-#login-btn:hover { background: #772ce8; }
-
-#status {
-    margin-bottom: 20px;
-    color: #adadb8;
-    font-weight: 500;
-}
+.winner { font-weight: bold; color: #00AAFF; }

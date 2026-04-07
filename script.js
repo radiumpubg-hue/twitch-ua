@@ -5,7 +5,6 @@ let onlineStreams = [];
 let accessToken = localStorage.getItem('twitch_access_token');
 let favorites = JSON.parse(localStorage.getItem('twitch_favorites') || '[]');
 
-// Переможці (логіни мають збігатися з Twitch для завантаження фото)
 const awardsData = [
     {
         year: 2025,
@@ -28,8 +27,7 @@ const awardsData = [
             { nom: "Стримерка року", login: "dobra_divka" },
             { nom: "Дебют року", login: "otoysounds" },
             { nom: "Кращий стример з CS2", login: "leniniw" },
-            { nom: "Кращий стример з Dota 2", login: "ghostik" },
-            { nom: "VTuber року", login: "luma_rum" }
+            { nom: "Кращий стример з Dota 2", login: "ghostik" }
         ]
     }
 ];
@@ -43,16 +41,8 @@ window.onload = function() {
     const searchInput = document.getElementById('search-input');
     const categoryFilter = document.getElementById('category-filter');
 
-    showMain.onclick = () => {
-        mainContent.style.display = 'block'; hallOfFame.style.display = 'none';
-        showMain.style.color = 'white'; showHall.style.color = '#adadb8';
-    };
-
-    showHall.onclick = () => {
-        mainContent.style.display = 'none'; hallOfFame.style.display = 'block';
-        showHall.style.color = 'white'; showMain.style.color = '#adadb8';
-        renderHall();
-    };
+    showMain.onclick = () => { mainContent.style.display = 'block'; hallOfFame.style.display = 'none'; };
+    showHall.onclick = () => { mainContent.style.display = 'none'; hallOfFame.style.display = 'block'; renderHall(); };
 
     const hash = window.location.hash.substring(1);
     const params = new URLSearchParams(hash);
@@ -62,78 +52,93 @@ window.onload = function() {
         window.history.replaceState({}, document.title, window.location.pathname);
     }
 
-    if (accessToken) { loadUserProfile(); loadInitialStreams(); renderHistory(); }
-    else { statusText.textContent = "Будь ласка, увійдіть через Twitch"; }
+    if (accessToken) { loadInitialStreams(); renderHistory(); }
+    else { statusText.textContent = "Авторизуйтесь для пошуку."; }
 
     document.getElementById('login-btn').onclick = () => {
         window.location.href = `https://id.twitch.tv/oauth2/authorize?client_id=${CLIENT_ID}&redirect_uri=${encodeURIComponent(REDIRECT_URI)}&response_type=token&scope=user:read:email`;
     };
 
     async function loadInitialStreams() {
+        statusText.textContent = "Завантаження популярних UA стрімів...";
         try {
             const res = await fetch('https://api.twitch.tv/helix/streams?language=uk&first=100', {
                 headers: { 'Client-ID': CLIENT_ID, 'Authorization': `Bearer ${accessToken}` }
             });
             const data = await res.json();
             onlineStreams = data.data || [];
-            applyFilters();
-        } catch (e) { statusText.textContent = "Помилка API."; }
-    }
-
-    function applyFilters() {
-        const query = searchInput.value.toLowerCase().trim();
-        if (query) searchTwitch(query);
-        else {
-            const category = categoryFilter.value;
-            const filtered = onlineStreams.filter(s => (category === "all") || (s.game_name === category));
-            render(filtered);
-        }
+            render(onlineStreams, false);
+        } catch (e) { statusText.textContent = "Помилка доступу до Twitch."; }
     }
 
     async function searchTwitch(query) {
+        statusText.textContent = `Шукаємо: ${query}...`;
         saveToHistory(query);
         try {
-            const res = await fetch(`https://api.twitch.tv/helix/search/channels?query=${encodeURIComponent(query)}&first=40`, {
+            // Використовуємо search/channels щоб знайти і офлайн стрімерів
+            const res = await fetch(`https://api.twitch.tv/helix/search/channels?query=${encodeURIComponent(query)}&first=50`, {
                 headers: { 'Client-ID': CLIENT_ID, 'Authorization': `Bearer ${accessToken}` }
             });
             const data = await res.json();
-            render(data.data.filter(c => c.is_live));
-        } catch (e) {}
+            render(data.data || [], true);
+        } catch (e) { statusText.textContent = "Помилка пошуку."; }
     }
 
-    function render(streams) {
+    function render(data, isSearch) {
         const grid = document.getElementById('streamers-grid');
         grid.innerHTML = '';
-        statusText.textContent = `В ефірі: ${streams.length}`;
-        streams.sort((a, b) => {
-            const aFav = favorites.includes(a.user_login || a.broadcaster_login);
-            const bFav = favorites.includes(b.user_login || b.broadcaster_login);
-            if (aFav && !bFav) return -1;
-            if (!aFav && bFav) return 1;
-            return (b.viewer_count || 0) - (a.viewer_count || 0);
-        }).forEach(s => {
-            const login = s.user_login || s.broadcaster_login;
+        if (data.length === 0) { statusText.textContent = "Нікого не знайдено."; return; }
+        
+        statusText.textContent = isSearch ? "Результати пошуку (Онлайн та Офлайн):" : "Зараз в ефірі (UA):";
+
+        data.forEach(item => {
+            const login = item.user_login || item.broadcaster_login;
+            const name = item.user_name || item.display_name;
+            const isLive = item.type === 'live' || item.is_live;
             const isFav = favorites.includes(login);
-            const thumb = (s.thumbnail_url || '').replace('{width}', '400').replace('{height}', '225');
-            grid.innerHTML += `
-                <div class="card">
-                    <button class="fav-btn ${isFav ? 'active' : ''}" onclick="window.toggleFav('${login}')">${isFav ? '❤️' : '🤍'}</button>
-                    <a href="https://twitch.tv/${login}" target="_blank" style="text-decoration:none; color:inherit;">
-                        <img src="${thumb || 'https://via.placeholder.com/400x225?text=Offline'}">
-                        <div class="info">
-                            <div style="font-weight:bold;">${s.user_name || s.display_name}</div>
-                            <div style="color:#adadb8; font-size:0.8em;">${s.game_name}</div>
-                        </div>
-                    </a>
-                </div>`;
+            
+            // Якщо це пошук, Twitch повертає маленьку аватарку, якщо стрім - прев'ю
+            let thumb = item.thumbnail_url || '';
+            thumb = thumb.replace('{width}', '440').replace('{height}', '248');
+            if (isSearch && !isLive) thumb = item.thumbnail_url; // Для офлайну залишаємо фото профілю
+
+            const card = document.createElement('div');
+            card.className = 'card';
+            card.innerHTML = `
+                <button class="fav-btn ${isFav ? 'active' : ''}" onclick="window.toggleFav('${login}')">${isFav ? '❤️' : '🤍'}</button>
+                <a href="https://twitch.tv/${login}" target="_blank" style="text-decoration:none; color:inherit;">
+                    <div style="position:relative;">
+                        <img src="${thumb || 'https://via.placeholder.com/440x248?text=No+Preview'}">
+                        <span class="status-badge ${isLive ? 'status-online' : 'status-offline'}">
+                            ${isLive ? '🔴 LIVE' : '⚪ OFFLINE'}
+                        </span>
+                    </div>
+                    <div class="info">
+                        <b style="font-size:1.1rem;">${name}</b><br>
+                        <small style="color:#adadb8;">${item.game_name || 'Не вказано'}</small>
+                        ${isLive && item.viewer_count ? `<div style="color:#ff4a4a; font-weight:bold; font-size:0.8rem; margin-top:5px;">👥 ${item.viewer_count.toLocaleString()}</div>` : ''}
+                    </div>
+                </a>`;
+            grid.appendChild(card);
         });
+    }
+
+    window.toggleFav = (login) => {
+        if (favorites.includes(login)) favorites = favorites.filter(f => f !== login);
+        else favorites.push(login);
+        localStorage.setItem('twitch_favorites', JSON.stringify(favorites));
+        applyFilters();
+    };
+
+    function applyFilters() {
+        const query = searchInput.value.toLowerCase().trim();
+        if (query) searchTwitch(query); else loadInitialStreams();
     }
 
     async function renderHall() {
         const container = document.getElementById('hall-content');
-        container.innerHTML = '<p style="text-align:center;">Завантаження аватарок...</p>';
+        container.innerHTML = '<p style="text-align:center;">Завантаження легенд...</p>';
         const allLogins = [...new Set(awardsData.flatMap(y => y.winners.map(w => w.login)))];
-        
         try {
             const res = await fetch(`https://api.twitch.tv/helix/users?login=${allLogins.join('&login=')}`, {
                 headers: { 'Client-ID': CLIENT_ID, 'Authorization': `Bearer ${accessToken}` }
@@ -144,30 +149,22 @@ window.onload = function() {
 
             container.innerHTML = '';
             awardsData.forEach(yearSec => {
-                let html = `<div class="hall-year-section"><h3 class="hall-year-title">${yearSec.year} РІК</h3><div class="hall-grid">`;
+                let html = `<div style="margin-bottom:40px;"><h2 style="color:#FFE600; border-bottom:1px solid #333; padding-bottom:10px;">${yearSec.year} РІК</h2><div class="hall-grid">`;
                 yearSec.winners.forEach(w => {
-                    const img = avatars[w.login] || 'https://pwa.twitch.tv/assets/default_user_picture-4ee05bd6.png';
                     html += `
                         <a href="https://twitch.tv/${w.login}" target="_blank" class="award-card">
-                            <img src="${img}" class="award-avatar">
-                            <span class="award-nomination">${w.nom}</span>
-                            <span class="award-winner">${w.login}</span>
+                            <img src="${avatars[w.login] || ''}" class="award-avatar">
+                            <div style="font-size:0.7rem; color:#adadb8; text-transform:uppercase;">${w.nom}</div>
+                            <div style="font-weight:bold; color:#FFE600;">${w.login}</div>
                         </a>`;
                 });
                 container.innerHTML += html + `</div></div>`;
             });
-        } catch (e) { container.innerHTML = "Помилка завантаження."; }
+        } catch (e) { container.innerHTML = "Помилка завантаження аватарок."; }
     }
 
-    window.toggleFav = (login) => {
-        if (favorites.includes(login)) favorites = favorites.filter(f => f !== login);
-        else favorites.push(login);
-        localStorage.setItem('twitch_favorites', JSON.stringify(favorites));
-        applyFilters();
-    };
-
     function saveToHistory(q) {
-        if(q.length < 2) return;
+        if(!q) return;
         let h = JSON.parse(localStorage.getItem('search_history') || '[]');
         h = [q, ...h.filter(x => x !== q)].slice(0, 5);
         localStorage.setItem('search_history', JSON.stringify(h));
@@ -177,21 +174,11 @@ window.onload = function() {
     function renderHistory() {
         const box = document.getElementById('search-history');
         const h = JSON.parse(localStorage.getItem('search_history') || '[]');
-        box.innerHTML = h.map(x => `<span onclick="document.getElementById('search-input').value='${x}'; window.dispatchEvent(new Event('input'));" style="background:#1f1f23; padding:5px 12px; border-radius:15px; font-size:0.8em; cursor:pointer; border:1px solid #333;">${x}</span>`).join('');
+        box.innerHTML = h.map(x => `<span onclick="document.getElementById('search-input').value='${x}'; window.dispatchEvent(new Event('input'));" style="background:#1f1f23; padding:5px 12px; border-radius:15px; font-size:0.8em; cursor:pointer; border:1px solid #333; margin-right:5px;">${x}</span>`).join('');
     }
 
-    async function loadUserProfile() {
-        try {
-            const res = await fetch('https://api.twitch.tv/helix/users', { headers: { 'Client-ID': CLIENT_ID, 'Authorization': `Bearer ${accessToken}` } });
-            const data = await res.json();
-            if (data.data && data.data[0]) {
-                const u = data.data[0];
-                document.getElementById('auth-container').innerHTML = `<div style="display:flex; align-items:center; gap:8px;"><img src="${u.profile_image_url}" style="width:32px; border-radius:50%;"><span style="font-weight:bold; font-size:0.85em;">${u.display_name}</span></div>`;
-            }
-        } catch (e) {}
-    }
-
-    searchInput.oninput = () => { clearTimeout(window.searchTimer); window.searchTimer = setTimeout(applyFilters, 600); };
-    categoryFilter.onchange = applyFilters;
-    window.addEventListener('input', (e) => { if(e.target.id === 'search-input') applyFilters(); });
+    searchInput.addEventListener('input', () => { 
+        clearTimeout(window.searchTimer); 
+        window.searchTimer = setTimeout(applyFilters, 700); 
+    });
 };

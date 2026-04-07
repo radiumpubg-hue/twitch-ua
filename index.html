@@ -13,6 +13,18 @@
     </header>
 
     <div class="container">
+        <div class="search-bar">
+            <input type="text" id="search-input" placeholder="Пошук за ніком...">
+            <select id="category-filter">
+                <option value="all">Всі категорії</option>
+                <option value="Just Chatting">Тільки спілкування</option>
+                <option value="Minecraft">Minecraft</option>
+                <option value="Dota 2">Dota 2</option>
+                <option value="Counter-Strike">CS 2</option>
+                <option value="League of Legends">League of Legends</option>
+            </select>
+        </div>
+
         <div id="status">Завантаження...</div>
         <div id="streamers-grid" class="grid"></div>
     </div>

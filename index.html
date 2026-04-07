@@ -8,7 +8,7 @@
 </head>
 <body>
     <header>
-        <a href="index.html" id="logo-link" style="text-decoration: none; display: flex; align-items: center; gap: 15px; color: white;">
+        <a href="index.html" id="logo-link">
             <svg width="45" height="45" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path d="M15 15H85V60L65 85H15V15Z" fill="black" stroke="black" stroke-width="4"/>
                 <path d="M19 19H81V40H19V19Z" fill="#00AAFF"/>
@@ -16,12 +16,12 @@
                 <rect x="35" y="27" width="10" height="20" fill="white"/>
                 <rect x="55" y="27" width="10" height="20" fill="white"/>
             </svg>
-            <h1 style="margin: 0; font-size: 1.6rem; letter-spacing: -1px;">Український Твіч</h1>
+            <h1>Український Твіч</h1>
         </a>
 
-        <nav style="display: flex; gap: 20px; align-items: center;">
-            <button id="show-main" style="background: none; border: none; color: white; cursor: pointer; font-weight: bold;">Головна</button>
-            <button id="show-hall" style="background: none; border: none; color: #adadb8; cursor: pointer; font-weight: bold;">Зал Слави 🏆</button>
+        <nav>
+            <button id="show-main">Головна</button>
+            <button id="show-hall">Зал Слави 🏆</button>
         </nav>
 
         <div id="auth-container">
@@ -42,14 +42,14 @@
                     <option value="Grand Theft Auto V">GTA V</option>
                 </select>
             </div>
-            <div id="search-history" style="display: flex; gap: 8px; flex-wrap: wrap; margin-top: 10px;"></div>
+            <div id="search-history"></div>
         </div>
         <div id="status">Завантаження...</div>
         <div id="streamers-grid" class="grid"></div>
     </div>
 
     <div class="container" id="hall-of-fame" style="display: none;">
-        <h2 style="text-align: center; color: #FFE600;">🏆 Зал Слави Stream Awards</h2>
+        <h2 style="text-align: center; color: #FFE600; margin-bottom: 30px;">🏆 Зал Слави Stream Awards</h2>
         <div id="hall-content"></div>
     </div>
 

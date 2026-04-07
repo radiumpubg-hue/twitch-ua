@@ -19,12 +19,17 @@
             <h1 style="margin: 0; font-size: 1.6rem; letter-spacing: -1px;">Український Твіч</h1>
         </a>
 
+        <nav style="display: flex; gap: 20px; align-items: center;">
+            <button id="show-main" style="background: none; border: none; color: white; cursor: pointer; font-weight: bold;">Головна</button>
+            <button id="show-hall" style="background: none; border: none; color: #adadb8; cursor: pointer; font-weight: bold;">Зал Слави 🏆</button>
+        </nav>
+
         <div id="auth-container">
             <button id="login-btn">Увійти через Twitch</button>
         </div>
     </header>
 
-    <div class="container">
+    <div class="container" id="main-content">
         <div class="search-bar-section">
             <div class="search-bar">
                 <input type="text" id="search-input" placeholder="Кого шукаємо? (введіть нік)...">
@@ -34,16 +39,18 @@
                     <option value="Minecraft">Minecraft</option>
                     <option value="Dota 2">Dota 2</option>
                     <option value="Counter-Strike">CS 2</option>
-                    <option value="Valorant">Valorant</option>
                     <option value="Grand Theft Auto V">GTA V</option>
-                    <option value="Software and Game Development">Програмування</option>
                 </select>
             </div>
             <div id="search-history" style="display: flex; gap: 8px; flex-wrap: wrap; margin-top: 10px;"></div>
         </div>
-
         <div id="status">Завантаження...</div>
         <div id="streamers-grid" class="grid"></div>
+    </div>
+
+    <div class="container" id="hall-of-fame" style="display: none;">
+        <h2 style="text-align: center; color: #FFE600;">🏆 Зал Слави Stream Awards</h2>
+        <div id="hall-content"></div>
     </div>
 
     <script src="script.js"></script>

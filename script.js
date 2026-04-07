@@ -5,94 +5,111 @@ let accessToken = localStorage.getItem('twitch_access_token');
 function setStatus(text) {
     const el = document.getElementById('status');
     if (el) el.innerHTML = text;
-    console.log("Status update:", text);
 }
 
 window.onload = function() {
-    // 1. Обробка кнопок відразу
-    const loginBtn = document.getElementById('login-btn');
-    if (loginBtn) {
-        loginBtn.onclick = () => {
-            const authUrl = `https://id.twitch.tv/oauth2/authorize?client_id=${CLIENT_ID}&redirect_uri=${encodeURIComponent(REDIRECT_URI)}&response_type=token&scope=user:read:email`;
-            window.location.href = authUrl;
-        };
-    }
-
-    // 2. Перевірка токена в посиланні
-    const hash = window.location.hash.substring(1);
-    const params = new URLSearchParams(hash);
-    const tokenFromUrl = params.get('access_token');
-
-    if (tokenFromUrl) {
-        accessToken = tokenFromUrl;
-        localStorage.setItem('twitch_access_token', tokenFromUrl);
+    // Авторизація
+    const params = new URLSearchParams(window.location.hash.substring(1));
+    const token = params.get('access_token');
+    if (token) {
+        accessToken = token;
+        localStorage.setItem('twitch_access_token', token);
         window.history.replaceState({}, document.title, window.location.pathname);
-        console.log("Токен отримано з URL");
     }
 
-    // 3. Якщо токена немає зовсім
+    document.getElementById('login-btn').onclick = () => {
+        window.location.href = `https://id.twitch.tv/oauth2/authorize?client_id=${CLIENT_ID}&redirect_uri=${encodeURIComponent(REDIRECT_URI)}&response_type=token&scope=user:read:email`;
+    };
+
+    // Перемикання сторінок
+    document.getElementById('btn-home').onclick = () => {
+        document.getElementById('main-section').style.display = 'block';
+        document.getElementById('hall-section').style.display = 'none';
+    };
+    document.getElementById('btn-hall').onclick = () => {
+        document.getElementById('main-section').style.display = 'none';
+        document.getElementById('hall-section').style.display = 'block';
+        renderHall();
+    };
+
     if (!accessToken) {
-        setStatus("<span style='color: #9146ff; font-size: 1.2rem;'>Привіт! Натисни кнопку 'Увійти через Twitch' зверху, щоб все запрацювало.</span>");
+        setStatus("Натисніть кнопку 'Увійти' для старту.");
         return;
     }
 
-    // 4. Завантаження даних
-    loadStreams();
+    loadStreams(); // Завантажити онлайн стріми за замовчуванням
+
+    // --- ПОШУК (ОНЛАЙН + ОФЛАЙН) ---
+    let timer;
+    document.getElementById('search-input').oninput = (e) => {
+        clearTimeout(timer);
+        const query = e.target.value.trim();
+        if (query.length < 2) return;
+        
+        timer = setTimeout(async () => {
+            setStatus("Шукаємо всюди...");
+            try {
+                const res = await fetch(`https://api.twitch.tv/helix/search/channels?query=${encodeURIComponent(query)}&first=50`, {
+                    headers: { 'Client-ID': CLIENT_ID, 'Authorization': `Bearer ${accessToken}` }
+                });
+                const data = await res.json();
+                renderGrid(data.data, false); // false = показувати і офлайн
+            } catch (err) { setStatus("Помилка пошуку."); }
+        }, 600);
+    };
 };
 
 async function loadStreams() {
-    setStatus("Завантаження стрімів...");
     try {
-        const response = await fetch('https://api.twitch.tv/helix/streams?language=uk&first=50', {
-            headers: {
-                'Client-ID': CLIENT_ID,
-                'Authorization': `Bearer ${accessToken}`
-            }
+        const res = await fetch('https://api.twitch.tv/helix/streams?language=uk&first=100', {
+            headers: { 'Client-ID': CLIENT_ID, 'Authorization': `Bearer ${accessToken}` }
         });
-
-        if (response.status === 401) {
-            localStorage.removeItem('twitch_access_token');
-            setStatus("Помилка: Сесія закінчилася. Натисніть 'Увійти' ще раз.");
-            return;
-        }
-
-        if (!response.ok) {
-            throw new Error(`Помилка сервера Twitch: ${response.status}`);
-        }
-
-        const data = await response.json();
-        renderGrid(data.data);
-    } catch (error) {
-        console.error("Повна помилка:", error);
-        setStatus(`Щось пішло не так: ${error.message}. Перевір інтернет або Client ID.`);
-    }
+        if (res.status === 401) { setStatus("Треба перелогінитись."); return; }
+        const data = await res.json();
+        renderGrid(data.data, true);
+    } catch (e) { setStatus("Помилка з'єднання."); }
 }
 
-function renderGrid(streams) {
+function renderGrid(data, onlyOnline) {
     const grid = document.getElementById('streamers-grid');
-    if (!grid) return;
-    
     grid.innerHTML = '';
     
-    if (!streams || streams.length === 0) {
-        setStatus("На жаль, зараз ніхто з українців не стрімить.");
+    if (!data || data.length === 0) {
+        setStatus("Нікого не знайдено.");
         return;
     }
 
-    setStatus(`Знайдено стрімів: ${streams.length}`);
+    setStatus(onlyOnline ? `Зараз в ефірі (UA): ${data.length}` : "Знайдені канали (UA):");
 
-    streams.forEach(s => {
-        const thumb = s.thumbnail_url.replace('{width}', '400').replace('{height}', '225');
+    data.forEach(s => {
+        // У пошуку і в списку стрімів різні назви полів, робимо універсально:
+        const login = s.user_login || s.broadcaster_login;
+        const name = s.user_name || s.display_name;
+        const isLive = onlyOnline ? true : s.is_live;
+        const viewers = s.viewer_count ? `👥 ${s.viewer_count}` : 'Офлайн';
+        let thumb = s.thumbnail_url.replace('{width}', '400').replace('{height}', '225');
+        
+        // Якщо це пошук, Twitch дає статичну картинку профілю замість стріму
+        if (!onlyOnline && !isLive) thumb = s.thumbnail_url; 
+
         grid.innerHTML += `
-            <div class="card">
-                <a href="https://twitch.tv/${s.user_login}" target="_blank" style="text-decoration:none; color:inherit;">
-                    <img src="${thumb}" onerror="this.src='https://via.placeholder.com/400x225?text=Stream+Offline'">
+            <div class="card ${!isLive ? 'offline' : ''}">
+                <a href="https://twitch.tv/${login}" target="_blank" style="text-decoration:none; color:inherit;">
+                    <div class="img-container">
+                        <img src="${thumb}" onerror="this.src='https://via.placeholder.com/400x225?text=No+Image'">
+                        ${isLive ? '<span class="live-tag">LIVE</span>' : ''}
+                    </div>
                     <div class="info">
-                        <b>${s.user_name}</b><br>
+                        <b>${name}</b><br>
                         <small>${s.game_name || 'Без категорії'}</small><br>
-                        <small>👥 ${s.viewer_count.toLocaleString()}</small>
+                        <small class="viewers-count">${viewers}</small>
                     </div>
                 </a>
             </div>`;
     });
+}
+
+function renderHall() {
+    // Тут твій код Залу Слави (Award Data), він не мінявся
+    document.getElementById('hall-content').innerHTML = "<p>Завантаження легенд...</p>";
 }

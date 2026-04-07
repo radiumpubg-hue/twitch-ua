@@ -8,25 +8,25 @@
 </head>
 <body>
     <header>
-        <a href="index.html" id="logo-link">
-            <svg width="45" height="45" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M15 15H85V60L65 85H15V15Z" fill="black" stroke="black" stroke-width="4"/>
-                <path d="M19 19H81V40H19V19Z" fill="#00AAFF"/>
-                <path d="M19 40H81V61L66 81H19V40Z" fill="#FFE600"/>
-                <rect x="35" y="27" width="10" height="20" fill="white"/>
-                <rect x="55" y="27" width="10" height="20" fill="white"/>
-            </svg>
-            <h1>Український Твіч</h1>
-        </a>
+        <div class="header-left">
+            <a href="index.html" id="logo-link">
+                <img src="Twitch logo in Ukrainian colors-fotor-bg-remover-20260407183315.png" alt="Logo" width="40">
+                <h1>Український Твіч</h1>
+            </a>
+        </div>
+
         <nav>
             <button id="show-main">Головна</button>
             <button id="show-hall">Зал Слави 🏆</button>
         </nav>
-        <div id="auth-container"><button id="login-btn">Увійти через Twitch</button></div>
+
+        <div id="auth-container">
+            <button id="login-btn">Увійти через Twitch</button>
+        </div>
     </header>
 
     <div class="container" id="main-content">
-        <div class="search-bar-section">
+        <div class="search-section">
             <div class="search-bar">
                 <input type="text" id="search-input" placeholder="Кого шукаємо? (напр. Leb1ga)">
                 <select id="category-filter">
@@ -45,9 +45,9 @@
     </div>
 
     <div class="container" id="hall-of-fame" style="display: none;">
-        <h2 style="text-align: center; color: #FFE600; margin-bottom: 30px;">🏆 ПЕРЕМОЖЦІ STREAM AWARDS 🏆</h2>
         <div id="hall-content"></div>
     </div>
+
     <script src="script.js"></script>
 </body>
 </html>

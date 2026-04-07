@@ -1,13 +1,23 @@
+/* Добавь это к своему старому стилю или замени всё */
 body { font-family: 'Segoe UI', sans-serif; background: #0e0e10; color: white; margin: 0; }
-header { display: flex; justify-content: space-between; align-items: center; padding: 20px 5%; background: #18181b; box-shadow: 0 2px 10px rgba(0,0,0,0.5); }
+header { display: flex; justify-content: space-between; align-items: center; padding: 15px 5%; background: #18181b; }
+
 .container { padding: 20px 5%; }
-.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 25px; margin-top: 20px; }
-.card { background: #1f1f23; border-radius: 10px; overflow: hidden; transition: 0.2s; border: 1px solid transparent; }
-.card:hover { transform: scale(1.03); border-color: #9146ff; }
-.card img { width: 100%; aspect-ratio: 16/9; object-fit: cover; }
-.card-content { padding: 15px; }
-.card-title { font-weight: bold; margin-bottom: 5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.card-name { color: #adadb8; font-size: 0.9em; }
-.viewers { color: #eb0400; font-size: 0.85em; font-weight: bold; margin-top: 10px; }
-#login-btn { background: #9146ff; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; font-weight: bold; }
-#login-btn:hover { background: #772ce8; }
+
+.search-bar { display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; }
+input, select { 
+    background: #1f1f23; border: 1px solid #464649; color: white; 
+    padding: 10px; border-radius: 5px; font-size: 16px; outline: none;
+}
+input:focus, select:focus { border-color: #9146ff; }
+input { flex-grow: 1; }
+
+.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; }
+.card { background: #1f1f23; border-radius: 10px; overflow: hidden; transition: 0.2s; }
+.card:hover { transform: scale(1.02); box-shadow: 0 0 15px #9146ff55; }
+.card img { width: 100%; aspect-ratio: 16/9; display: block; }
+.info { padding: 12px; }
+.title { font-weight: bold; font-size: 0.95em; margin-bottom: 5px; height: 40px; overflow: hidden; }
+.name { color: #adadb8; font-size: 0.85em; }
+.viewers { color: #eb0400; font-weight: bold; margin-top: 8px; font-size: 0.85em; }
+#login-btn { background: #9146ff; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; }

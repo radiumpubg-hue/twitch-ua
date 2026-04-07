@@ -1,77 +1,37 @@
-body {
-    background-color: #0e0e10;
-    color: white;
-    font-family: Inter, sans-serif;
-    margin: 0;
+body { background-color: #0e0e10; color: white; font-family: 'Inter', sans-serif; margin: 0; }
+header { background: #18181b; padding: 10px 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #303032; position: sticky; top: 0; z-index: 100; }
+
+/* Збільшений логотип з фіолетовою обводкою */
+#logo-link { text-decoration: none; color: white; display: flex; align-items: center; gap: 12px; }
+#logo-link img { 
+    width: 60px; 
+    height: 60px; 
+    border-radius: 50%; 
+    border: 3px solid #9146ff; 
+    object-fit: cover; 
 }
 
-header {
-    background: #18181b;
-    padding: 10px 20px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    border-bottom: 1px solid #303032;
-}
-
-.header-left { display: flex; align-items: center; gap: 10px; }
-.header-left a { text-decoration: none; color: white; display: flex; align-items: center; gap: 10px; }
-
-nav button {
-    background: none;
-    border: none;
-    color: #adadb8;
-    cursor: pointer;
-    font-weight: bold;
-    margin: 0 10px;
-}
-
+nav button { background: none; border: none; color: #adadb8; cursor: pointer; font-weight: bold; margin: 0 10px; font-size: 1rem; }
 nav button:hover { color: white; }
 
-#login-btn {
-    background: #9146ff;
-    color: white;
-    border: none;
-    padding: 8px 15px;
-    border-radius: 5px;
-    font-weight: bold;
-    cursor: pointer;
-}
+#login-btn { background: #9146ff; color: white; border: none; padding: 10px 20px; border-radius: 5px; font-weight: bold; cursor: pointer; }
 
 .container { padding: 20px; max-width: 1200px; margin: auto; }
+.search-bar input { width: 100%; padding: 12px; background: #1f1f23; border: 1px solid #303032; border-radius: 8px; color: white; margin-bottom: 20px; }
 
-.search-bar input {
-    width: 100%;
-    padding: 12px;
-    background: #1f1f23;
-    border: 1px solid #303032;
-    border-radius: 8px;
-    color: white;
-    margin-bottom: 20px;
-}
-
-.grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-    gap: 20px;
-}
-
-.card {
-    background: #18181b;
-    border-radius: 8px;
-    overflow: hidden;
-    transition: 0.2s;
-}
-
+.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 20px; }
+.card { background: #18181b; border-radius: 8px; overflow: hidden; border: 1px solid #303032; transition: 0.3s; }
+.card:hover { border-color: #9146ff; }
 .card img { width: 100%; display: block; }
 
-.info { padding: 10px; }
-
 /* Стилі для Залу Слави */
-.hall-title { text-align: center; font-size: 1.2rem; margin-bottom: 30px; }
-.nomination { color: #ffd700; font-size: 10px; font-weight: bold; text-transform: uppercase; margin: 0; }
-.username { font-size: 16px; font-weight: bold; margin: 5px 0 0; }
+.hall-title { text-align: center; font-size: 1.4rem; color: #FFE600; text-transform: uppercase; }
+.hall-grid { gap: 15px; }
+.award-card { display: flex; flex-direction: column; align-items: center; padding: 15px 10px; text-align: center; }
+.award-avatar { width: 90px; height: 90px; border-radius: 50%; border: 3px solid #FFE600; margin-bottom: 10px; object-fit: cover; }
+.award-poster { width: 100%; border-radius: 5px; margin-bottom: 10px; }
+.nomination-text { color: #FFE600; font-size: 0.7rem; font-weight: bold; text-transform: uppercase; }
+.winner-name { font-size: 1rem; font-weight: bold; margin-top: 5px; }
 
 .user-profile { display: flex; flex-direction: column; align-items: center; gap: 5px; }
 .user-profile img { border-radius: 50%; border: 2px solid #9146ff; }
-.user-profile span { font-size: 12px; }

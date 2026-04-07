@@ -1,23 +1,87 @@
-/* Добавь это к своему старому стилю или замени всё */
-body { font-family: 'Segoe UI', sans-serif; background: #0e0e10; color: white; margin: 0; }
-header { display: flex; justify-content: space-between; align-items: center; padding: 15px 5%; background: #18181b; }
-
-.container { padding: 20px 5%; }
-
-.search-bar { display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; }
-input, select { 
-    background: #1f1f23; border: 1px solid #464649; color: white; 
-    padding: 10px; border-radius: 5px; font-size: 16px; outline: none;
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: #0e0e10;
+    color: #efeff1;
+    margin: 0;
 }
-input:focus, select:focus { border-color: #9146ff; }
+
+header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 5%;
+    background: #18181b;
+    border-bottom: 1px solid #303032;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+}
+
+.container {
+    padding: 20px 5%;
+}
+
+.search-bar-section {
+    margin-bottom: 25px;
+}
+
+.search-bar {
+    display: flex;
+    gap: 10px;
+}
+
+input, select {
+    background: #1f1f23;
+    border: 2px solid #303032;
+    color: white;
+    padding: 12px;
+    border-radius: 8px;
+    font-size: 16px;
+    outline: none;
+    transition: 0.2s;
+}
+
+input:focus, select:focus {
+    border-color: #9146ff;
+}
+
 input { flex-grow: 1; }
 
-.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; }
-.card { background: #1f1f23; border-radius: 10px; overflow: hidden; transition: 0.2s; }
-.card:hover { transform: scale(1.02); box-shadow: 0 0 15px #9146ff55; }
-.card img { width: 100%; aspect-ratio: 16/9; display: block; }
-.info { padding: 12px; }
-.title { font-weight: bold; font-size: 0.95em; margin-bottom: 5px; height: 40px; overflow: hidden; }
-.name { color: #adadb8; font-size: 0.85em; }
-.viewers { color: #eb0400; font-weight: bold; margin-top: 8px; font-size: 0.85em; }
-#login-btn { background: #9146ff; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; }
+.grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 20px;
+}
+
+.card {
+    background: #1f1f23;
+    border-radius: 10px;
+    overflow: hidden;
+    transition: transform 0.2s, box-shadow 0.2s;
+    border: 2px solid transparent;
+}
+
+.card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0,0,0,0.5);
+}
+
+.info { padding: 15px; }
+
+#login-btn {
+    background: #9146ff;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+#login-btn:hover { background: #772ce8; }
+
+#status {
+    margin-bottom: 20px;
+    color: #adadb8;
+    font-weight: 500;
+}

@@ -5,11 +5,22 @@ let onlineStreams = [];
 let accessToken = null;
 
 window.onload = function() {
+    const authContainer = document.getElementById('auth-container');
     const loginBtn = document.getElementById('login-btn');
     const statusText = document.getElementById('status');
     const searchInput = document.getElementById('search-input');
     const categoryFilter = document.getElementById('category-filter');
     const grid = document.getElementById('streamers-grid');
+    const logoLink = document.getElementById('logo-link');
+
+    // Клик по логотипу сбрасывает поиск
+    logoLink.onclick = (e) => {
+        if (!searchInput.value) return; // Если и так пусто, пусть просто обновит страницу
+        e.preventDefault();
+        searchInput.value = '';
+        categoryFilter.value = 'all';
+        applyFilters();
+    };
 
     loginBtn.onclick = () => {
         const authUrl = `https://id.twitch.tv/oauth2/authorize?client_id=${CLIENT_ID}&redirect_uri=${encodeURIComponent(REDIRECT_URI)}&response_type=token&scope=user:read:email`;
@@ -21,10 +32,30 @@ window.onload = function() {
     accessToken = params.get('access_token');
 
     if (accessToken) {
-        loginBtn.textContent = "Ви ввійшли ✅";
+        loadUserProfile();
         loadInitialStreams();
     } else {
         statusText.textContent = "Авторизуйтесь через Twitch";
+    }
+
+    // НОВАЯ ФУНКЦИЯ: Загрузка профиля пользователя
+    async function loadUserProfile() {
+        try {
+            const response = await fetch('https://api.twitch.tv/helix/users', {
+                headers: { 'Client-ID': CLIENT_ID, 'Authorization': `Bearer ${accessToken}` }
+            });
+            const data = await response.json();
+            const user = data.data[0];
+
+            if (user) {
+                authContainer.innerHTML = `
+                    <div style="display: flex; flex-direction: column; align-items: center; gap: 5px;">
+                        <img src="${user.profile_image_url}" style="width: 40px; height: 40px; border-radius: 50%; border: 2px solid #9146ff;">
+                        <span style="font-size: 0.8em; font-weight: bold; color: #adadb8;">${user.display_name}</span>
+                    </div>
+                `;
+            }
+        } catch (e) { console.error("Профіль не завантажено", e); }
     }
 
     async function loadInitialStreams() {
@@ -69,33 +100,19 @@ window.onload = function() {
             const data = await response.json();
             let channels = data.data;
 
-            // Применяем фильтр категорий если выбран
             const category = categoryFilter.value;
             if (category !== "all") {
                 channels = channels.filter(c => c.game_name === category);
             }
 
-            // Обогащаем данные количеством подписчиков для сортировки оффлайна
-            // И количеством зрителей для онлайна
             const enrichedChannels = await Promise.all(channels.map(async (c) => {
                 const followers = await getFollowerCount(c.id);
-                // Если стример онлайн, нам нужно найти его в API Streams, чтобы узнать точный онлайн
-                // Но для поиска используем упрощенный вес
                 return { ...c, followersCount: followers };
             }));
 
-            // --- УМНАЯ ИЕРАРХИЧЕСКАЯ СОРТИРОВКА ---
             enrichedChannels.sort((a, b) => {
-                // 1. Приоритет Live над Offline
                 if (a.is_live && !b.is_live) return -1;
                 if (!a.is_live && b.is_live) return 1;
-
-                // 2. Если оба Live — сортируем по онлайну (в поиске Twitch это не всегда точно, используем followers как замену или доп. вес)
-                if (a.is_live && b.is_live) {
-                    return b.followersCount - a.followersCount; // Для Live-результатов поиска Twitch отдаем приоритет крупным
-                }
-
-                // 3. Если оба Offline — сортируем строго по подписчикам
                 return b.followersCount - a.followersCount;
             });
 
@@ -109,15 +126,15 @@ window.onload = function() {
         timeout = setTimeout(applyFilters, 600);
     };
 
+    categoryFilter.onchange = applyFilters;
+
     function renderSearchResults(channels, cleanQuery) {
         grid.innerHTML = '';
         statusText.textContent = `Результати для "${cleanQuery}"`;
-
         channels.forEach(c => {
             const isLive = c.is_live;
             const card = document.createElement('div');
             card.className = 'card';
-            
             if (c.broadcaster_login.toLowerCase() === cleanQuery) {
                 card.style.border = "2px solid #FFE600";
             }

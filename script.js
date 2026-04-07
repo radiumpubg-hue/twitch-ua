@@ -1,13 +1,14 @@
 const CLIENT_ID = 'm3l01pm0lc1hyw65z60xb0dmr5kq6w';
 const REDIRECT_URI = 'https://radiumpubg-hue.github.io/twitch-ua/';
 
-let onlineStreams = []; // Топ онлайн UA
+let onlineStreams = []; 
 let accessToken = null;
 
 window.onload = function() {
     const loginBtn = document.getElementById('login-btn');
     const statusText = document.getElementById('status');
     const searchInput = document.getElementById('search-input');
+    const categoryFilter = document.getElementById('category-filter');
     const grid = document.getElementById('streamers-grid');
 
     loginBtn.onclick = () => {
@@ -23,7 +24,7 @@ window.onload = function() {
         loginBtn.textContent = "Ви ввійшли ✅";
         loadInitialStreams();
     } else {
-        statusText.textContent = "Авторизуйтесь, щоб почати пошук";
+        statusText.textContent = "Авторизуйтесь через Twitch";
     }
 
     async function loadInitialStreams() {
@@ -34,79 +35,83 @@ window.onload = function() {
             });
             const data = await response.json();
             onlineStreams = data.data;
-            render(onlineStreams);
+            applyFilters(); // Показываем результат с учетом фильтров
         } catch (e) { statusText.textContent = "Помилка завантаження."; }
     }
 
-    // ЛОГИКА ГЛОБАЛЬНОГО ПОИСКА И СОРТИРОВКИ
-    async function searchTwitch(query) {
-        if (!query) { render(onlineStreams); return; }
-
-        statusText.textContent = `Шукаємо: ${query}...`;
-        const cleanQuery = query.toLowerCase().trim();
-
+    // Получение фолловеров (нужен ID канала)
+    async function getFollowerCount(broadcasterId) {
         try {
-            const response = await fetch(`https://api.twitch.tv/helix/search/channels?query=${encodeURIComponent(cleanQuery)}&first=40`, {
+            const response = await fetch(`https://api.twitch.tv/helix/channels/followers?broadcaster_id=${broadcasterId}`, {
+                headers: { 'Client-ID': CLIENT_ID, 'Authorization': `Bearer ${accessToken}` }
+            });
+            const data = await response.json();
+            return data.total || 0;
+        } catch (e) { return 0; }
+    }
+
+    function applyFilters() {
+        const query = searchInput.value.toLowerCase().trim();
+        const category = categoryFilter.value;
+
+        if (query) {
+            searchTwitch(query);
+        } else {
+            const filtered = onlineStreams.filter(s => {
+                return (category === "all") || (s.game_name === category);
+            });
+            render(filtered);
+        }
+    }
+
+    async function searchTwitch(query) {
+        statusText.textContent = `Шукаємо: ${query}...`;
+        try {
+            const response = await fetch(`https://api.twitch.tv/helix/search/channels?query=${encodeURIComponent(query)}&first=40`, {
                 headers: { 'Client-ID': CLIENT_ID, 'Authorization': `Bearer ${accessToken}` }
             });
             const data = await response.json();
             
-            // --- СУПЕР-СОРТИРОВКА ---
-            const sorted = data.data.sort((a, b) => {
-                const nameA = a.broadcaster_login.toLowerCase();
-                const nameB = b.broadcaster_login.toLowerCase();
+            const category = categoryFilter.value;
+            const sorted = data.data
+                .filter(c => (category === "all") || (c.game_name === category))
+                .sort((a, b) => (a.is_live === b.is_live) ? 0 : a.is_live ? -1 : 1);
 
-                // 1. Приоритет точному совпадению
-                if (nameA === cleanQuery) return -1;
-                if (nameB === cleanQuery) return 1;
-
-                // 2. Приоритет тем, кто Live
-                if (a.is_live && !b.is_live) return -1;
-                if (!a.is_live && b.is_live) return 1;
-
-                // 3. (Опционально) Сортировка по дате стрима для оффлайн (тут пропустим)
-                return 0;
-            });
-
-            renderSearchResults(sorted, cleanQuery);
+            renderSearchResults(sorted, query);
         } catch (e) { console.error(e); }
     }
 
-    // Задержка поиска
-    let timeout = null;
-    searchInput.oninput = () => {
-        clearTimeout(timeout);
-        timeout = setTimeout(() => searchTwitch(searchInput.value), 600);
-    };
+    searchInput.oninput = applyFilters;
+    categoryFilter.onchange = applyFilters;
 
-    function renderSearchResults(channels, cleanQuery) {
+    async function renderSearchResults(channels, cleanQuery) {
         grid.innerHTML = '';
-        statusText.textContent = `Результати пошуку`;
+        statusText.textContent = `Знайдено каналів: ${channels.length}`;
 
-        channels.forEach(c => {
+        for (const c of channels) {
             const isLive = c.is_live;
+            const followers = await getFollowerCount(c.id); // Запрос фолловеров
+            
             const card = document.createElement('div');
             card.className = 'card';
-            
-            // Стилизация для точного совпадения (чтобы выделить его)
             if (c.broadcaster_login.toLowerCase() === cleanQuery) {
-                card.style.border = "2px solid #FFE600"; // Желтая рамка
-                card.style.boxShadow = "0 0 20px rgba(255, 230, 0, 0.4)";
+                card.style.border = "2px solid #FFE600";
             }
-            if (!isLive) card.style.opacity = "0.6";
+            if (!isLive) card.style.opacity = "0.7";
 
             card.innerHTML = `
                 <a href="https://twitch.tv/${c.broadcaster_login}" target="_blank" style="text-decoration:none; color:inherit;">
-                    <img src="${c.thumbnail_url}" style="border-radius: 50%; width: 80px; height: 80px; margin: 15px auto; display: block; border: 3px solid ${isLive ? '#9146ff' : '#444'}">
+                    <img src="${c.thumbnail_url}" style="border-radius: 50%; width: 70px; height: 70px; margin: 15px auto; display: block; border: 3px solid ${isLive ? '#9146ff' : '#444'}">
                     <div class="info" style="text-align: center;">
-                        <div class="name" style="font-size: 1.1em; color: white; font-weight: bold;">${c.display_name}</div>
-                        <div style="font-size: 0.8em; margin-top: 5px;">${isLive ? '🔴 В ЕФІРІ' : '⚪ ОФЛАЙН'}</div>
-                        ${isLive ? `<div style="color: #adadb8; font-size:0.8em; margin-top:5px;">${c.game_name}</div>` : ''}
+                        <div class="name" style="font-weight: bold;">${c.display_name}</div>
+                        <div style="font-size: 0.75em; color: #adadb8; margin-top: 3px;">👥 ${followers.toLocaleString()} підписників</div>
+                        <div style="font-size: 0.75em; margin-top: 5px;">${isLive ? '🔴 В ЕФІРІ' : '⚪ ОФЛАЙН'}</div>
+                        <div style="color: #9146ff; font-size:0.7em; margin-top:5px; font-weight:bold;">${c.game_name || ''}</div>
                     </div>
                 </a>
             `;
             grid.appendChild(card);
-        });
+        }
     }
 
     function render(streams) {
@@ -121,7 +126,7 @@ window.onload = function() {
                         <div class="info">
                             <div class="title">${s.title}</div>
                             <div class="name">${s.user_name} • ${s.game_name}</div>
-                            <div class="viewers">🔴 ${s.viewer_count.toLocaleString()}</div>
+                            <div class="viewers">🔴 ${s.viewer_count.toLocaleString()} глядачів</div>
                         </div>
                     </a>
                 </div>`;

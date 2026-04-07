@@ -8,21 +8,22 @@
 </head>
 <body>
     <header>
-        <h1>🇺🇦 UA Streamers</h1>
+        <div style="display: flex; align-items: center; gap: 15px;">
+            <svg width="40" height="40" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M15 15H85V60L65 85H15V15Z" fill="black" stroke="black" stroke-width="4"/>
+                <path d="M19 19H81V40H19V19Z" fill="#00AAFF"/>
+                <path d="M19 40H81V61L66 81H19V40Z" fill="#FFE600"/>
+                <rect x="35" y="27" width="10" height="20" fill="white"/>
+                <rect x="55" y="27" width="10" height="20" fill="white"/>
+            </svg>
+            <h1 style="margin: 0; font-size: 1.5rem;">UA Streamers</h1>
+        </div>
         <button id="login-btn">Увійти через Twitch</button>
     </header>
 
     <div class="container">
         <div class="search-bar">
             <input type="text" id="search-input" placeholder="Пошук за ніком...">
-            <select id="category-filter">
-                <option value="all">Всі категорії</option>
-                <option value="Just Chatting">Тільки спілкування</option>
-                <option value="Minecraft">Minecraft</option>
-                <option value="Dota 2">Dota 2</option>
-                <option value="Counter-Strike">CS 2</option>
-                <option value="League of Legends">League of Legends</option>
-            </select>
         </div>
 
         <div id="status">Завантаження...</div>

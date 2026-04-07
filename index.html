@@ -2,36 +2,44 @@
 <html lang="uk">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Український Твіч</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <header>
-        <div class="logo-area">
-            <img src="logo.png" alt="Logo" width="40" onerror="this.src='https://pwa.twitch.tv/assets/apple-touch-icon-120.png'">
-            <h1>UA Twitch</h1>
+        <div class="header-left">
+            <a href="index.html" id="logo-link" style="display: flex; align-items: center; text-decoration: none; color: white; gap: 10px;">
+                <img src="logo.png" alt="UA" width="40" onerror="this.style.display='none'">
+                <h1 style="margin: 0; font-size: 1.2rem;">Український Твіч</h1>
+            </a>
         </div>
         <nav>
             <button id="btn-home">Головна</button>
             <button id="btn-hall">Зал Слави 🏆</button>
         </nav>
-        <div id="auth-box">
-            <button id="login-btn">Увійти</button>
+        <div id="auth-container">
+            <button id="login-btn">Увійти через Twitch</button>
         </div>
     </header>
 
-    <main id="main-section">
-        <div class="search-container">
-            <input type="text" id="search-input" placeholder="Шукати стрімера (навіть якщо він офлайн)...">
+    <main id="main-section" class="container">
+        <div class="search-bar" style="margin: 20px 0; text-align: center;">
+            <input type="text" id="search-input" placeholder="Пошук стрімерів (UA)..." 
+                   style="width: 80%; padding: 12px; border-radius: 20px; border: 1px solid #333; background: #18181b; color: white;">
         </div>
-        <h2 id="status">Завантаження...</h2>
-        <div id="streamers-grid" class="grid"></div>
+        
+        <h2 id="status" style="text-align: center; color: #adadb8;">Завантаження...</h2>
+        
+        <div id="streamers-grid" class="grid">
+            </div>
     </main>
 
-    <div id="hall-section" style="display:none;" class="container">
-        <h2 class="hall-title">🏆 Зал Слави 🏆</h2>
-        <div id="hall-content" class="grid"></div>
-    </div>
+    <section id="hall-section" class="container" style="display: none;">
+        <h2 style="text-align: center; color: #FFE600; margin-top: 30px;">🏆 LEGENDS OF UA TWITCH 🏆</h2>
+        <div id="hall-content" class="grid">
+            </div>
+    </section>
 
     <script src="script.js"></script>
 </body>

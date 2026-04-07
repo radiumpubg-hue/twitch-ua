@@ -1,10 +1,7 @@
 const CLIENT_ID = 'm3l01pm0lc1hyw65z60xb0dmr5kq6w';
 const REDIRECT_URI = 'https://radiumpubg-hue.github.io/twitch-ua/';
-
 let accessToken = localStorage.getItem('twitch_access_token');
-let onlineStreams = [];
 
-// Дані Залу Слави з типами контенту
 const awardsData = [
     {
         year: 2025,
@@ -43,7 +40,6 @@ const awardsData = [
 ];
 
 window.onload = function() {
-    // Авторизація
     const hash = window.location.hash.substring(1);
     const params = new URLSearchParams(hash);
     if (params.get('access_token')) {
@@ -52,12 +48,8 @@ window.onload = function() {
         window.history.replaceState({}, document.title, window.location.pathname);
     }
 
-    if (accessToken) {
-        loadInitialStreams();
-        loadUserProfile();
-    }
+    if (accessToken) { loadInitialStreams(); loadUserProfile(); }
 
-    // Навігація
     document.getElementById('show-main').onclick = () => {
         document.getElementById('main-content').style.display = 'block';
         document.getElementById('hall-of-fame').style.display = 'none';
@@ -79,12 +71,11 @@ window.onload = function() {
                 headers: { 'Client-ID': CLIENT_ID, 'Authorization': `Bearer ${accessToken}` }
             });
             const data = await res.json();
-            onlineStreams = data.data || [];
-            render(onlineStreams);
-        } catch (e) { document.getElementById('status').textContent = "Помилка завантаження."; }
+            renderGrid(data.data || []);
+        } catch (e) { document.getElementById('status').textContent = "Помилка API."; }
     }
 
-    function render(streams) {
+    function renderGrid(streams) {
         const grid = document.getElementById('streamers-grid');
         grid.innerHTML = '';
         document.getElementById('status').textContent = `Зараз в ефірі (UA): ${streams.length}`;
@@ -107,9 +98,7 @@ window.onload = function() {
 
     async function renderHall() {
         const container = document.getElementById('hall-content');
-        container.innerHTML = '<p style="text-align:center;">Завантаження легенд...</p>';
-        
-        // Збираємо логіни людей для аватарок
+        container.innerHTML = '<p style="text-align:center;">Завантаження...</p>';
         const personLogins = [...new Set(awardsData.flatMap(y => y.winners.filter(w => w.type === 'person').map(w => w.login)))];
         
         try {
@@ -122,51 +111,30 @@ window.onload = function() {
 
             container.innerHTML = '';
             awardsData.forEach(yearSec => {
-                let html = `<h2 class="hall-title">🏆 ПЕРЕМОЖЦІ STREAM AWARDS ${yearSec.year}: UKRAINIAN EDITION 🏆</h2><div class="hall-grid">`;
-                
+                let html = `<h2 class="hall-title">🏆 ПЕРЕМОЖЦІ STREAM AWARDS ${yearSec.year} 🏆</h2><div class="hall-grid">`;
                 yearSec.winners.forEach(w => {
-                    let mediaHtml = '';
-                    // Логіка вибору картинки
-                    if (w.type === 'person') {
-                        mediaHtml = `<img src="${avatars[w.login] || ''}" class="award-avatar">`;
-                    } else if (w.type === 'game') {
-                        // Використовуємо постери зі Steam для ігор
-                        mediaHtml = `<img src="https://cdn.akamai.steamstatic.com/steam/apps/${w.appId}/header.jpg" class="award-poster">`;
-                    } else if (w.type === 'show') {
-                        // Для шоу можна не ставити картинку або ставити заглушку
-                        mediaHtml = `<div class="award-poster" style="background:#222; display:flex; align-items:center; justify-content:center; color:#555; font-size:2rem;">🎬</div>`;
-                    }
+                    let media = '';
+                    if (w.type === 'person') media = `<img src="${avatars[w.login] || ''}" class="award-avatar">`;
+                    else if (w.type === 'game') media = `<img src="https://cdn.akamai.steamstatic.com/steam/apps/${w.appId}/header.jpg" class="award-poster">`;
+                    else media = `<div class="award-icon-placeholder">🎬</div>`;
 
-                    const link = w.login ? `https://twitch.tv/${w.login}` : '#';
                     html += `
-                        <a href="${link}" target="_blank" class="award-card">
-                            ${mediaHtml}
+                        <a href="${w.login ? 'https://twitch.tv/'+w.login : '#'}" target="_blank" class="award-card">
+                            ${media}
                             <span class="nomination-text">${w.nom}</span>
                             <div class="winner-name">${w.title || w.login}</div>
                         </a>`;
                 });
                 container.innerHTML += html + '</div>';
             });
-        } catch (e) { container.innerHTML = "Помилка завантаження аватарок."; }
+        } catch (e) { container.innerHTML = "Помилка."; }
     }
 
     async function loadUserProfile() {
         try {
-            const res = await fetch('https://api.twitch.tv/helix/users', {
-                headers: { 'Client-ID': CLIENT_ID, 'Authorization': `Bearer ${accessToken}` }
-            });
+            const res = await fetch('https://api.twitch.tv/helix/users', { headers: { 'Client-ID': CLIENT_ID, 'Authorization': `Bearer ${accessToken}` } });
             const data = await res.json();
-            if (data.data && data.data[0]) {
-                const u = data.data[0];
-                document.getElementById('auth-container').innerHTML = `<img src="${u.profile_image_url}" width="35" style="border-radius:50%; border:2px solid #9146ff; cursor:pointer;" title="${u.display_name}">`;
-            }
+            if (data.data[0]) document.getElementById('auth-container').innerHTML = `<img src="${data.data[0].profile_image_url}" width="35" style="border-radius:50%; border:2px solid #9146ff;">`;
         } catch (e) {}
     }
-
-    // Миттєвий пошук
-    document.getElementById('search-input').oninput = (e) => {
-        const q = e.target.value.toLowerCase();
-        const filtered = onlineStreams.filter(s => s.user_name.toLowerCase().includes(q) || s.game_name.toLowerCase().includes(q));
-        render(filtered);
-    };
 };

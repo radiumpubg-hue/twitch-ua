@@ -5,32 +5,31 @@ let onlineStreams = [];
 let accessToken = localStorage.getItem('twitch_access_token');
 let favorites = JSON.parse(localStorage.getItem('twitch_favorites') || '[]');
 
-// Повні дані переможців зі скріншотів
+// Переможці (логіни мають збігатися з Twitch для завантаження фото)
 const awardsData = [
     {
         year: 2025,
         winners: [
-            { nom: "Стример року", name: "roolex9" },
-            { nom: "Стримерка року", name: "sheisfoxy" },
-            { nom: "Дебют року", name: "valentinopradagucci" },
-            { nom: "Non-gaming стример", name: "Leb1ga" },
-            { nom: "Кращий стример з CS2", name: "Leb1ga" },
-            { nom: "Кращий стример з Dota 2", name: "Ghostik" },
-            { nom: "VTuber року", name: "luma_rum" },
-            { nom: "Завжди в етері", name: "guthriee" },
-            { nom: "Вибір спільноти", name: "thetremba" }
+            { nom: "Стример року", login: "roolex9" },
+            { nom: "Стримерка року", login: "sheisfoxy" },
+            { nom: "Дебют року", login: "valentinopradagucci" },
+            { nom: "Non-gaming стример", login: "leb1ga" },
+            { nom: "Кращий стример з CS2", login: "leb1ga" },
+            { nom: "Кращий стример з Dota 2", login: "ghostik" },
+            { nom: "VTuber року", login: "luma_rum" },
+            { nom: "Завжди в етері", login: "guthriee" },
+            { nom: "Вибір спільноти", login: "thetremba" }
         ]
     },
     {
         year: 2024,
         winners: [
-            { nom: "Стример року", name: "Leb1ga" },
-            { nom: "Стримерка року", name: "Dobra_Divka" },
-            { nom: "Дебют року", name: "OTOYSOUNDS" },
-            { nom: "Стример IRL", name: "Leb1ga" },
-            { nom: "Кращий стример з CS2", name: "Leniniw" },
-            { nom: "Кращий стример з Dota 2", name: "Ghostik" },
-            { nom: "VTuber року", name: "luma_rum" }
+            { nom: "Стример року", login: "leb1ga" },
+            { nom: "Стримерка року", login: "dobra_divka" },
+            { nom: "Дебют року", login: "otoysounds" },
+            { nom: "Кращий стример з CS2", login: "leniniw" },
+            { nom: "Кращий стример з Dota 2", login: "ghostik" },
+            { nom: "VTuber року", login: "luma_rum" }
         ]
     }
 ];
@@ -55,26 +54,22 @@ window.onload = function() {
         renderHall();
     };
 
-    // Авторизація
     const hash = window.location.hash.substring(1);
     const params = new URLSearchParams(hash);
-    const newToken = params.get('access_token');
-    if (newToken) {
-        accessToken = newToken;
-        localStorage.setItem('twitch_access_token', newToken);
+    if (params.get('access_token')) {
+        accessToken = params.get('access_token');
+        localStorage.setItem('twitch_access_token', accessToken);
         window.history.replaceState({}, document.title, window.location.pathname);
     }
 
     if (accessToken) { loadUserProfile(); loadInitialStreams(); renderHistory(); }
-    else { statusText.textContent = "Будь ласка, авторизуйтесь через Twitch"; }
+    else { statusText.textContent = "Будь ласка, увійдіть через Twitch"; }
 
     document.getElementById('login-btn').onclick = () => {
-        const authUrl = `https://id.twitch.tv/oauth2/authorize?client_id=${CLIENT_ID}&redirect_uri=${encodeURIComponent(REDIRECT_URI)}&response_type=token&scope=user:read:email`;
-        window.location.href = authUrl;
+        window.location.href = `https://id.twitch.tv/oauth2/authorize?client_id=${CLIENT_ID}&redirect_uri=${encodeURIComponent(REDIRECT_URI)}&response_type=token&scope=user:read:email`;
     };
 
     async function loadInitialStreams() {
-        statusText.textContent = "Завантаження...";
         try {
             const res = await fetch('https://api.twitch.tv/helix/streams?language=uk&first=100', {
                 headers: { 'Client-ID': CLIENT_ID, 'Authorization': `Bearer ${accessToken}` }
@@ -102,7 +97,7 @@ window.onload = function() {
                 headers: { 'Client-ID': CLIENT_ID, 'Authorization': `Bearer ${accessToken}` }
             });
             const data = await res.json();
-            renderSearchResults(data.data || []);
+            render(data.data.filter(c => c.is_live));
         } catch (e) {}
     }
 
@@ -111,52 +106,59 @@ window.onload = function() {
         grid.innerHTML = '';
         statusText.textContent = `В ефірі: ${streams.length}`;
         streams.sort((a, b) => {
-            const aFav = favorites.includes(a.user_login);
-            const bFav = favorites.includes(b.user_login);
+            const aFav = favorites.includes(a.user_login || a.broadcaster_login);
+            const bFav = favorites.includes(b.user_login || b.broadcaster_login);
             if (aFav && !bFav) return -1;
             if (!aFav && bFav) return 1;
-            return b.viewer_count - a.viewer_count;
+            return (b.viewer_count || 0) - (a.viewer_count || 0);
         }).forEach(s => {
-            const isFav = favorites.includes(s.user_login);
-            const thumb = s.thumbnail_url.replace('{width}', '400').replace('{height}', '225');
-            const card = document.createElement('div');
-            card.className = 'card';
-            card.innerHTML = `
-                <button class="fav-btn ${isFav ? 'active' : ''}" onclick="window.toggleFav('${s.user_login}')">${isFav ? '❤️' : '🤍'}</button>
-                <a href="https://twitch.tv/${s.user_login}" target="_blank" style="text-decoration:none; color:inherit;">
-                    <img src="${thumb}">
-                    <div class="info">
-                        <div style="font-weight:bold; height:40px; overflow:hidden;">${s.title}</div>
-                        <div style="color:#adadb8; font-size:0.85em; margin-top:5px;">${s.user_name}</div>
-                        <div style="color:#eb0400; font-weight:bold; margin-top:8px;">🔴 ${s.viewer_count.toLocaleString()}</div>
-                    </div>
-                </a>`;
-            grid.appendChild(card);
+            const login = s.user_login || s.broadcaster_login;
+            const isFav = favorites.includes(login);
+            const thumb = (s.thumbnail_url || '').replace('{width}', '400').replace('{height}', '225');
+            grid.innerHTML += `
+                <div class="card">
+                    <button class="fav-btn ${isFav ? 'active' : ''}" onclick="window.toggleFav('${login}')">${isFav ? '❤️' : '🤍'}</button>
+                    <a href="https://twitch.tv/${login}" target="_blank" style="text-decoration:none; color:inherit;">
+                        <img src="${thumb || 'https://via.placeholder.com/400x225?text=Offline'}">
+                        <div class="info">
+                            <div style="font-weight:bold;">${s.user_name || s.display_name}</div>
+                            <div style="color:#adadb8; font-size:0.8em;">${s.game_name}</div>
+                        </div>
+                    </a>
+                </div>`;
         });
     }
 
-    // Рендер Залу Слави
-    function renderHall() {
+    async function renderHall() {
         const container = document.getElementById('hall-content');
-        container.innerHTML = '';
-        awardsData.forEach(section => {
-            const yearSec = document.createElement('div');
-            yearSec.className = 'hall-year-section';
-            yearSec.innerHTML = `<h3 class="hall-year-title">${section.year} РІК</h3><div class="hall-grid"></div>`;
-            const hallGrid = yearSec.querySelector('.hall-grid');
-            
-            section.winners.forEach(w => {
-                hallGrid.innerHTML += `
-                    <a href="https://twitch.tv/${w.name.toLowerCase()}" target="_blank" class="award-card">
-                        <span class="award-nomination">${w.nom}</span>
-                        <div class="award-winner">${w.name}</div>
-                    </a>`;
+        container.innerHTML = '<p style="text-align:center;">Завантаження аватарок...</p>';
+        const allLogins = [...new Set(awardsData.flatMap(y => y.winners.map(w => w.login)))];
+        
+        try {
+            const res = await fetch(`https://api.twitch.tv/helix/users?login=${allLogins.join('&login=')}`, {
+                headers: { 'Client-ID': CLIENT_ID, 'Authorization': `Bearer ${accessToken}` }
             });
-            container.appendChild(yearSec);
-        });
+            const userData = await res.json();
+            const avatars = {};
+            userData.data.forEach(u => avatars[u.login] = u.profile_image_url);
+
+            container.innerHTML = '';
+            awardsData.forEach(yearSec => {
+                let html = `<div class="hall-year-section"><h3 class="hall-year-title">${yearSec.year} РІК</h3><div class="hall-grid">`;
+                yearSec.winners.forEach(w => {
+                    const img = avatars[w.login] || 'https://pwa.twitch.tv/assets/default_user_picture-4ee05bd6.png';
+                    html += `
+                        <a href="https://twitch.tv/${w.login}" target="_blank" class="award-card">
+                            <img src="${img}" class="award-avatar">
+                            <span class="award-nomination">${w.nom}</span>
+                            <span class="award-winner">${w.login}</span>
+                        </a>`;
+                });
+                container.innerHTML += html + `</div></div>`;
+            });
+        } catch (e) { container.innerHTML = "Помилка завантаження."; }
     }
 
-    // Інші допоміжні функції... (toggleFav, saveToHistory, renderHistory, loadUserProfile)
     window.toggleFav = (login) => {
         if (favorites.includes(login)) favorites = favorites.filter(f => f !== login);
         else favorites.push(login);
@@ -191,4 +193,5 @@ window.onload = function() {
 
     searchInput.oninput = () => { clearTimeout(window.searchTimer); window.searchTimer = setTimeout(applyFilters, 600); };
     categoryFilter.onchange = applyFilters;
+    window.addEventListener('input', (e) => { if(e.target.id === 'search-input') applyFilters(); });
 };

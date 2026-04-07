@@ -1,10 +1,22 @@
 <!DOCTYPE html>
-<html>
+<html lang="uk">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>UA Streamers Hub</title>
-    <link rel="stylesheet" href="style.css"> </head>
+    <link rel="stylesheet" href="style.css">
+</head>
 <body>
-    <h1>Стримери України 🇺🇦</h1>
-    <button id="login-btn">Увійти через Twitch</button>
-    <div id="streamers-container"></div> <script src="script.js"></script> </body>
+    <header>
+        <h1>🇺🇦 UA Streamers</h1>
+        <button id="login-btn">Увійти через Twitch</button>
+    </header>
+
+    <div class="container">
+        <div id="status">Завантаження...</div>
+        <div id="streamers-grid" class="grid"></div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
 </html>

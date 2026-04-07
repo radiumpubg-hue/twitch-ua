@@ -1,34 +1,16 @@
-body { font-family: 'Segoe UI', sans-serif; background: #0e0e10; color: #efeff1; margin: 0; }
-header { display: flex; justify-content: space-between; align-items: center; padding: 10px 5%; background: #18181b; border-bottom: 1px solid #303032; position: sticky; top: 0; z-index: 100; }
-#logo-link { text-decoration: none; display: flex; align-items: center; gap: 10px; color: white; }
-header h1 { margin: 0; font-size: 1.1rem; }
-
-nav button { background: none; border: none; color: #adadb8; cursor: pointer; font-weight: bold; padding: 10px; }
+body { background: #0e0e10; color: white; font-family: sans-serif; margin: 0; }
+header { display: flex; justify-content: space-between; background: #18181b; padding: 10px 5%; align-items: center; border-bottom: 1px solid #333; position: sticky; top: 0; z-index: 10; }
+.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 20px; padding: 20px; }
+.card { background: #1f1f23; border-radius: 8px; overflow: hidden; transition: 0.3s; border: 1px solid transparent; }
+.card:hover { border-color: #9146ff; transform: scale(1.02); }
+.card.offline { opacity: 0.6; filter: grayscale(0.5); }
+.img-container { position: relative; }
+.img-container img { width: 100%; display: block; aspect-ratio: 16/9; object-fit: cover; }
+.live-tag { position: absolute; top: 10px; left: 10px; background: red; padding: 2px 5px; font-weight: bold; border-radius: 4px; font-size: 12px; }
+.info { padding: 10px; }
+.search-container { padding: 20px; text-align: center; }
+#search-input { width: 80%; max-width: 600px; padding: 12px; border-radius: 20px; border: 1px solid #333; background: #18181b; color: white; outline: none; }
+#search-input:focus { border-color: #9146ff; }
+#login-btn { background: #9146ff; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; font-weight: bold; }
+nav button { background: none; border: none; color: #ccc; cursor: pointer; padding: 10px; font-size: 16px; }
 nav button:hover { color: white; }
-
-#login-btn { background: #9146ff; color: white; border: none; padding: 8px 16px; border-radius: 4px; font-weight: bold; cursor: pointer; }
-
-.container { padding: 20px 5%; }
-.search-bar { margin-bottom: 20px; }
-input { background: #1f1f23; border: 1px solid #303032; color: white; padding: 10px; border-radius: 4px; width: 100%; box-sizing: border-box; }
-
-.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 20px; }
-.card { background: #1f1f23; border-radius: 8px; overflow: hidden; position: relative; border: 1px solid transparent; transition: 0.2s; }
-.card:hover { border-color: #9146ff; }
-.card img { width: 100%; aspect-ratio: 16/9; object-fit: cover; display: block; }
-
-.badge { position: absolute; top: 10px; left: 10px; padding: 2px 6px; font-size: 0.7rem; font-weight: bold; border-radius: 2px; }
-.badge-live { background: #eb0400; color: white; }
-.badge-offline { background: #303032; color: #adadb8; }
-
-.info { padding: 12px; }
-.info b { display: block; margin-bottom: 4px; }
-.info small { color: #adadb8; }
-
-/* Зал Слави */
-.hall-title { text-align: center; color: #FFE600; margin: 30px 0; }
-.hall-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 15px; }
-.award-card { background: #18181b; border: 1px solid #303032; border-radius: 12px; padding: 15px; text-align: center; }
-.award-avatar { width: 70px; height: 70px; border-radius: 50%; border: 2px solid #FFE600; object-fit: cover; margin-bottom: 10px; }
-.award-poster { width: 100%; height: 100px; border-radius: 8px; object-fit: cover; margin-bottom: 10px; }
-.nomination { color: #FFE600; font-size: 0.6rem; font-weight: bold; text-transform: uppercase; }
